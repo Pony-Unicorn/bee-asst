@@ -5,14 +5,7 @@ export const config = {
 };
 
 export default async function handler(req: NextRequest) {
-  return new Response(`<?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0">
-
-<channel>
-  <title>Next.js Documentation</title>
-  <link>https://nextjs.org/docs</link>
-  <description>The React Framework for the Web</description>
-</channel>
-
-</rss>`);
+  return new Response(JSON.stringify({ success: true }), {
+    status: 200,
+  });
 }
