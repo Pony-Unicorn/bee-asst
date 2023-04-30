@@ -18,11 +18,11 @@ yarn dev
 
 ## 说明
 
-- 支持平台：pc 网页并且适配移动端、pwa
+- 支持平台：pc 网页并且适配移动端、pwa 书签要支持浏览器插件
 - 工具 1: 卡片式笔记，简单笔记。参考 flomo
 - 工具 2: 个人任务、个人看板。参考 板栗
 - 工具 3: 浏览器书签管理，类似自己的导航页
-  - 参考 https://withpinbox.com/explore http://demo.onenav.top/
+  - 参考 https://withpinbox.com/explore http://demo.onenav.top/ https://b.lucq.fun/#/tags
   - 功能：稍后阅读、自动获取 logo、私密书签、一键打开文件夹内所有书签
   - 特色：多 tag 书签、标签可点击筛选,tag 颗粒要细化，根据 tag 生成视图（tag 的组合）
   - 常用考前
