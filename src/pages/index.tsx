@@ -47,7 +47,7 @@ const Home: FC<{}> = () => {
         return i;
     }
     return tagViews.length;
-  }, [tagSelectList]);
+  }, [tagSelectList, tagViews]);
 
   const switchTabHandle = (index: number) => {
     if (tabIndex === index) return;

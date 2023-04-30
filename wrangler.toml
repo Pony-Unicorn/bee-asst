@@ -1,0 +1,3 @@
+kv_namespaces = [
+  { binding = "BEE_ASST_STORAGE", id = "BEE_ASST_STORAGE" }
+]
