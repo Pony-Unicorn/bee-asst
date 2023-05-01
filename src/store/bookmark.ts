@@ -58,7 +58,7 @@ export const useBookmarkStore = create(
           user: 'pony',
         },
       });
-      const data = jsonData.data.data;
+      const data = JSON.parse(jsonData.data.data);
       if (data) {
         set((store) => {
           store.metadata = data.metadata;
@@ -78,7 +78,7 @@ export const useBookmarkStore = create(
       };
       await axios.post('/api/bookmark', {
         user: 'pony',
-        data: cloudStore,
+        data: JSON.stringify(cloudStore),
       });
     },
     addTag: (newTag: string) => {

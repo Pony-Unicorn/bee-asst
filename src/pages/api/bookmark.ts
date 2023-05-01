@@ -20,7 +20,7 @@ export default async function handler(req: NextRequest) {
     }
     case 'POST': {
       const jsonData = await req.json<{ user: string; data: any }>();
-      return await saveBookmark(jsonData?.user, JSON.stringify(jsonData?.data));
+      return await saveBookmark(jsonData?.user, jsonData?.data);
     }
     default:
       return new Response(JSON.stringify({ error: { message: 'Method not allowed.' } }), {
