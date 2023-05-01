@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import dayjs from 'dayjs';
-
-import { tagsData, viewsData } from './testData';
+import depthClone from 'ramda/src/clone';
+import axios from 'axios';
 
 export type ItemPrimaryKey = string; // 只包含数字的字符串，例如 12、232、1
 
@@ -46,14 +46,41 @@ export interface IBookmarkAction {
 type IBookmarkState = IIndicatorState & IBookmarkStorageState & IBookmarkOperateState & IBookmarkAction;
 
 export const useBookmarkStore = create(
-  immer<IBookmarkState>((set) => ({
+  immer<IBookmarkState>((set, get) => ({
     state: 'empty',
     metadata: { version: '0.0.0', inc: 0 },
-    view: viewsData, // viewsData []
+    view: [],
     items: {},
-    tags: tagsData, // tagsData {}
-    load: async () => {},
-    save: async () => {},
+    tags: {},
+    load: async () => {
+      const jsonData = await axios.get('/api/bookmark', {
+        params: {
+          user: 'pony',
+        },
+      });
+      const data = jsonData.data.data;
+      if (data) {
+        set((store) => {
+          store.metadata = data.metadata;
+          store.view = data.view;
+          store.items = data.items;
+          store.tags = data.tags;
+        });
+      }
+    },
+    save: async () => {
+      const store = get();
+      const cloudStore = {
+        metadata: depthClone(store.metadata),
+        view: depthClone(store.view),
+        items: depthClone(store.items),
+        tags: depthClone(store.tags),
+      };
+      await axios.post('/api/bookmark', {
+        user: 'pony',
+        data: cloudStore,
+      });
+    },
     addTag: (newTag: string) => {
       set((store) => {
         store.tags[++store.metadata.inc] = newTag;

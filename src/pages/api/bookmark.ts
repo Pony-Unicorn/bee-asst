@@ -19,7 +19,7 @@ export default async function handler(req: NextRequest) {
       }
     }
     case 'POST': {
-      const jsonData = await req.json<{ user: string; data: ArrayBuffer }>();
+      const jsonData = await req.json<{ user: string; data: any }>();
       return await saveBookmark(jsonData?.user, jsonData?.data);
     }
     default:
@@ -29,12 +29,9 @@ export default async function handler(req: NextRequest) {
   }
 }
 
-// 登陆
-
 // 获取书签 get
 const getBookmark = async (userUnique: string) => {
-  const BEE_ASST_STORAGE = process.env.BEE_ASST_STORAGE as any as KVNamespace;
-
+  const BEE_ASST_STORAGE = process.env.BEE_ASST_STORAGE as unknown as KVNamespace;
   const bookmark = await BEE_ASST_STORAGE.get(`bookmark:${userUnique}`);
 
   return new Response(
@@ -51,12 +48,15 @@ const getBookmark = async (userUnique: string) => {
 };
 
 // 保存书签 post
-const saveBookmark = async (userUnique: string, data: ArrayBuffer) => {
+const saveBookmark = async (userUnique: string, data: any) => {
+  const BEE_ASST_STORAGE = process.env.BEE_ASST_STORAGE as unknown as KVNamespace;
+
   await BEE_ASST_STORAGE.put(`bookmark:${userUnique}`, data);
 
   return new Response(
     JSON.stringify({
-      message: 'Hello, world!',
+      code: 0,
+      msg: 'Success!',
     }),
     {
       status: 201,
