@@ -31,7 +31,7 @@ yarn dev
 
 - 所有数据处理都在前端，服务器只进行存储
 - 用户表
-  `user:user-unique={user-unique:"",name:"pony",psw:"jsf82sdfs"}`
+  `user:user-unique={user-unique:"",name:"pony",psw:"jsf82sdfs", token:"oifdwsdq"}`
 - 笔记：tags 表
   `note:user-unique:tags={tagname:{id:1111,count:1,index:1,top:0}}`
 - 笔记：笔记表
@@ -48,9 +48,6 @@ yarn dev
 
 ## To-do
 
-- 本地调试开发
-- 拆分 UI，书签封装成组件
 - 书签数据存储压缩
-- 自动保存和同步，保存：延迟同步和立即同步
-- 账户体系、登陆登出，使用数据库实现，放到 cookie 中
+- 自动保存：添加立即同步按钮，当有修改时延迟
 - 界面 UI 的优化

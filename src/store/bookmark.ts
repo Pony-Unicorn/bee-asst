@@ -59,9 +59,7 @@ export const useBookmarkStore = create(
       set({ state: 'loading' });
       try {
         const jsonData = await axios.get(bookmarkUrl, {
-          params: {
-            user: 'pony',
-          },
+          headers: { Authorization: `Bearer ${localStorage.getItem('bee-asst-Bearer')}` },
         });
         const data = JSON.parse(jsonData.data.data);
         if (data) {
@@ -88,11 +86,13 @@ export const useBookmarkStore = create(
       await axios.post(
         bookmarkUrl,
         {
-          user: 'pony',
           data: JSON.stringify(cloudStore),
         },
         {
-          headers: { 'Content-Type': 'application/octet-stream' },
+          headers: {
+            'Content-Type': 'application/octet-stream',
+            Authorization: `Bearer ${localStorage.getItem('bee-asst-Bearer')}`,
+          },
         }
       );
     },

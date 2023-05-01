@@ -1,4 +1,6 @@
 import type { NextRequest } from 'next/server';
+import jwt from '@tsndr/cloudflare-worker-jwt';
+
 // import type { KVNamespace } from '@cloudflare/workers-types';
 
 export const config = {
@@ -23,9 +25,11 @@ export default async function handler(req: NextRequest) {
 
 // 登陆
 const login = async (userUnique: string, psw: string) => {
+  const token = await jwt.sign({ name: userUnique, email: '' }, process.env.JWT_SECRET as string);
+
   return new Response(
     JSON.stringify({
-      data: 'Hello',
+      data: { token: token },
     }),
     {
       status: 200,
