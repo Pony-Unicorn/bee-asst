@@ -1,5 +1,4 @@
 import type { NextRequest } from 'next/server';
-import type { KVNamespace } from '@cloudflare/workers-types';
 
 export const config = {
   runtime: 'edge',
@@ -33,8 +32,6 @@ export default async function handler(req: NextRequest) {
 
 // 获取书签 get
 const getBookmark = async (userUnique: string) => {
-  const BEE_ASST_STORAGE = process.env.BEE_ASST_STORAGE as KVNamespace;
-
   const bookmark = await BEE_ASST_STORAGE.get(`bookmark:${userUnique}`);
 
   return new Response(
@@ -52,8 +49,6 @@ const getBookmark = async (userUnique: string) => {
 
 // 保存书签 post
 const saveBookmark = async (userUnique: string, data: ArrayBuffer) => {
-  const BEE_ASST_STORAGE = process.env.BEE_ASST_STORAGE as KVNamespace;
-
   await BEE_ASST_STORAGE.put(`bookmark:${userUnique}`, data);
 
   return new Response(
