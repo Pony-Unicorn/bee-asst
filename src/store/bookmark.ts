@@ -4,6 +4,9 @@ import dayjs from 'dayjs';
 import depthClone from 'ramda/src/clone';
 import axios from 'axios';
 
+const bookmarkUrl = '/api-dev/bookmark';
+// const bookmarkUrl = '/api/bookmark';
+
 export type ItemPrimaryKey = string; // 只包含数字的字符串，例如 12、232、1
 
 export interface IBookmarkItem {
@@ -55,7 +58,7 @@ export const useBookmarkStore = create(
     load: async () => {
       set({ state: 'loading' });
       try {
-        const jsonData = await axios.get('/api/bookmark', {
+        const jsonData = await axios.get(bookmarkUrl, {
           params: {
             user: 'pony',
           },
@@ -83,7 +86,7 @@ export const useBookmarkStore = create(
         tags: depthClone(store.tags),
       };
       await axios.post(
-        '/api/bookmark',
+        bookmarkUrl,
         {
           user: 'pony',
           data: JSON.stringify(cloudStore),

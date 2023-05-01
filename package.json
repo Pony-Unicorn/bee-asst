@@ -6,9 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dev:cf": "next-on-pages && wrangler pages dev .vercel/output/static --kv BEE_ASST_STORAGE"
   },
   "dependencies": {
+    "@cloudflare/next-on-pages": "^0.10.1",
     "@cloudflare/workers-types": "^4.20230404.0",
     "@types/node": "18.16.0",
     "@types/ramda": "^0.29.1",
@@ -36,6 +38,6 @@
     "zustand": "^4.3.7"
   },
   "devDependencies": {
-    "wrangler": "2.17.0"
+    "vercel": "^29.0.3"
   }
 }

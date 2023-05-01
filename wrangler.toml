@@ -1,3 +1,9 @@
+[env.staging]
+kv_namespaces = [
+  { binding = "BEE_ASST_STORAGE", id = "98d83878883a4e07b942a1353c9175b7" }
+]
+
+[env.production]
 kv_namespaces = [
   { binding = "BEE_ASST_STORAGE", id = "e530b33afbfe45c29d8987c85e7c1b29" }
 ]

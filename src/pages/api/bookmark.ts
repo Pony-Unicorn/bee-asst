@@ -50,7 +50,6 @@ const getBookmark = async (userUnique: string) => {
 // 保存书签 post
 const saveBookmark = async (userUnique: string, data: string) => {
   const BEE_ASST_STORAGE = process.env.BEE_ASST_STORAGE as unknown as KVNamespace;
-
   await BEE_ASST_STORAGE.put(`bookmark:${userUnique}`, data);
 
   return new Response(
