@@ -25,11 +25,11 @@ yarn dev
   - 参考 https://withpinbox.com/explore http://demo.onenav.top/ https://b.lucq.fun/#/tags
   - 功能：稍后阅读、自动获取 logo、私密书签、一键打开文件夹内所有书签
   - 特色：多 tag 书签、标签可点击筛选,tag 颗粒要细化，根据 tag 生成视图（tag 的组合）
-  - 常用考前
 - 工具 4: 其他实用小工具，例如 rss 阅读等，仔细考虑，或者搭建二级项目，进行跳转
 
 ## 数据表
 
+- 所有数据处理都在前端，服务器只进行存储
 - 用户表
   `user:user-unique={user-unique:"",name:"pony",psw:"jsf82sdfs"}`
 - 笔记：tags 表
@@ -45,3 +45,10 @@ yarn dev
     items: [{i:'ssdfsdfsd',n: "百度", u: "www.baidu.com", t:"1,3,4,6,9",ut:1682428883, ct: 1682428883}]
   }
 ```
+
+## To-do
+
+- 书签数据存储压缩
+- 自动保存和同步，保存：延迟同步和立即同步
+- 账户体系、登陆登出，使用数据库实现，放到 cookie 中
+- 界面 UI 的优化

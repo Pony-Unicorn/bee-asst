@@ -53,6 +53,7 @@ export const useBookmarkStore = create(
     items: {},
     tags: {},
     load: async () => {
+      set({ state: 'loading' });
       const jsonData = await axios.get('/api/bookmark', {
         params: {
           user: 'pony',
@@ -67,6 +68,7 @@ export const useBookmarkStore = create(
           store.tags = data.tags;
         });
       }
+      set({ state: 'success' });
     },
     save: async () => {
       const store = get();
@@ -76,10 +78,16 @@ export const useBookmarkStore = create(
         items: depthClone(store.items),
         tags: depthClone(store.tags),
       };
-      await axios.post('/api/bookmark', {
-        user: 'pony',
-        data: JSON.stringify(cloudStore),
-      });
+      await axios.post(
+        '/api/bookmark',
+        {
+          user: 'pony',
+          data: JSON.stringify(cloudStore),
+        },
+        {
+          headers: { 'Content-Type': 'application/octet-stream' },
+        }
+      );
     },
     addTag: (newTag: string) => {
       set((store) => {
