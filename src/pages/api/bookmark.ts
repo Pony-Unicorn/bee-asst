@@ -20,7 +20,7 @@ export default async function handler(req: NextRequest) {
     }
     case 'POST': {
       const jsonData = await req.json<{ user: string; data: any }>();
-      return await saveBookmark(jsonData?.user, jsonData?.data);
+      return await saveBookmark(jsonData?.user, JSON.stringify(jsonData?.data));
     }
     default:
       return new Response(JSON.stringify({ error: { message: 'Method not allowed.' } }), {
@@ -48,7 +48,7 @@ const getBookmark = async (userUnique: string) => {
 };
 
 // 保存书签 post
-const saveBookmark = async (userUnique: string, data: any) => {
+const saveBookmark = async (userUnique: string, data: string) => {
   const BEE_ASST_STORAGE = process.env.BEE_ASST_STORAGE as unknown as KVNamespace;
 
   await BEE_ASST_STORAGE.put(`bookmark:${userUnique}`, data);
