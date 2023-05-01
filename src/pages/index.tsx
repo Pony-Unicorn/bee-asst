@@ -25,19 +25,21 @@ const Home: FC<{}> = () => {
   const [addTagDialogOpen, setAddTagDialogOpen] = useState(false); // 添加标签面板的是否打开
   const [addBookmarkDialogOpen, setAddBookmarkDialogOpen] = useState(false); // 添加书签面板的是否打开
 
-  const { addTag, tags, addView, tagViews, bookmarkItems, addBookmarkItem, saveBookmark, loadBookmark } = useBookmarkStore(
-    (state) => ({
-      addTag: state.addTag,
-      tags: state.tags,
-      addView: state.addView,
-      tagViews: state.view,
-      bookmarkItems: state.items,
-      addBookmarkItem: state.addItem,
-      saveBookmark: state.save,
-      loadBookmark: state.load,
-    }),
-    shallow
-  );
+  const { addTag, tags, addView, tagViews, bookmarkItems, addBookmarkItem, saveBookmark, loadBookmark, state } =
+    useBookmarkStore(
+      (state) => ({
+        addTag: state.addTag,
+        tags: state.tags,
+        addView: state.addView,
+        tagViews: state.view,
+        bookmarkItems: state.items,
+        addBookmarkItem: state.addItem,
+        saveBookmark: state.save,
+        loadBookmark: state.load,
+        state: state.state,
+      }),
+      shallow
+    );
 
   // 等于 tagViews.length 没有任何选中, 为下次添加做准备.其他代表在 tagViews 中的索引
   const tagViewSelectIndex = useMemo(() => {

@@ -54,21 +54,25 @@ export const useBookmarkStore = create(
     tags: {},
     load: async () => {
       set({ state: 'loading' });
-      const jsonData = await axios.get('/api/bookmark', {
-        params: {
-          user: 'pony',
-        },
-      });
-      const data = JSON.parse(jsonData.data.data);
-      if (data) {
-        set((store) => {
-          store.metadata = data.metadata;
-          store.view = data.view;
-          store.items = data.items;
-          store.tags = data.tags;
+      try {
+        const jsonData = await axios.get('/api/bookmark', {
+          params: {
+            user: 'pony',
+          },
         });
+        const data = JSON.parse(jsonData.data.data);
+        if (data) {
+          set((store) => {
+            store.metadata = data.metadata;
+            store.view = data.view;
+            store.items = data.items;
+            store.tags = data.tags;
+          });
+        }
+        set({ state: 'success' });
+      } catch (err) {
+        set({ state: 'fail' });
       }
-      set({ state: 'success' });
     },
     save: async () => {
       const store = get();
