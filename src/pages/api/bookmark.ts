@@ -32,11 +32,11 @@ export default async function handler(req: NextRequest) {
 
 // 获取书签 get
 const getBookmark = async (userUnique: string) => {
-  const bookmark = await BEE_ASST_STORAGE.get(`bookmark:${userUnique}`);
+  // const bookmark = await BEE_ASST_STORAGE.get(`bookmark:${userUnique}`);
 
   return new Response(
     JSON.stringify({
-      data: bookmark,
+      data: userUnique,
     }),
     {
       status: 200,
