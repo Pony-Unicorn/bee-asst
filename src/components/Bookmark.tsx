@@ -12,7 +12,7 @@ import EditTagViewDialog from '@/components/EditTagViewDialog';
 import EditTagDialog from '@/components/EditTagDialog';
 import EditBookmarkItemDialog from '@/components/EditBookmarkItemDialog';
 
-const Bookmark: FC<{}> = () => {
+const Bookmark: FC = () => {
   const [isEdit, setEdit] = useState(false); // false: 正常状态, true: 编辑状态
 
   const [tagSelectList, updateTagSelectList] = useImmer<string[]>([]); // 选中的 tag 列表

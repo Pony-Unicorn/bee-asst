@@ -9,7 +9,7 @@ import Bookmark from '@/components/Bookmark';
 
 const inter = Inter({ subsets: ['latin'] });
 
-const Home: FC<{}> = () => {
+const Home: FC = () => {
   const [tabIndex, setTabIndex] = useState(2); // 0: 笔记, 1: 看板, 2: 书签
 
   const switchTabHandle = (index: number) => {

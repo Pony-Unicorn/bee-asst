@@ -3,10 +3,9 @@ import { immer } from 'zustand/middleware/immer';
 import dayjs from 'dayjs';
 import depthClone from 'ramda/src/clone';
 import axios from 'axios';
-// import JSZip from 'jszip';
 
-// const bookmarkUrl = '/api-dev/bookmark';
-const bookmarkUrl = '/api/bookmark';
+import apiRouteMap from '@/constants/apiRouteMap';
+// import JSZip from 'jszip';
 
 export type ItemPrimaryKey = string; // 只包含数字的字符串，例如 12、232、1
 
@@ -64,7 +63,7 @@ export const useBookmarkStore = create(
       if (get().state === 'loading') return;
       set({ state: 'loading' });
       try {
-        const jsonData = await axios.get(bookmarkUrl, {
+        const jsonData = await axios.get(apiRouteMap.bookmark, {
           headers: { Authorization: `Bearer ${localStorage.getItem('bee-asst-Bearer')}` },
         });
         const data = JSON.parse(jsonData.data.data);
@@ -98,7 +97,7 @@ export const useBookmarkStore = create(
 
       const data = JSON.stringify(cloudStore);
 
-      await axios.post(bookmarkUrl, data, {
+      await axios.post(apiRouteMap.bookmark, data, {
         headers: {
           // 'Content-Type': 'application/octet-stream',
           'Content-Type': 'text/plain',

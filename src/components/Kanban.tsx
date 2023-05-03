@@ -1,7 +1,6 @@
-import { FC, useState, ChangeEvent, useEffect } from 'react';
-import clsx from 'clsx';
+import { FC, useEffect } from 'react';
 
-const Kanban: FC<{}> = () => {
+const Kanban: FC = () => {
   useEffect(() => {
     console.log('Kanban Mounted...');
   }, []);

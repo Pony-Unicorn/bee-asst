@@ -4,7 +4,9 @@ import { useRouter } from 'next/router';
 import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
-const Login: FC<{}> = () => {
+import apiRouteMap from '@/constants/apiRouteMap';
+
+const Login: FC = () => {
   const router = useRouter();
 
   const [name, setName] = useState(''); //
@@ -12,7 +14,7 @@ const Login: FC<{}> = () => {
 
   const [{ loading, error }, execute] = useAxios(
     {
-      url: '/api/login',
+      url: apiRouteMap.login,
       method: 'POST',
     },
     { manual: true }

@@ -3,6 +3,8 @@ import type { KVNamespace } from '@cloudflare/workers-types';
 
 import jwt from '@tsndr/cloudflare-worker-jwt';
 
+import { BEE_ASST_STORAGE_GET, BEE_ASST_STORAGE_PUT } from '../../../libs/wrapKV';
+
 export const config = {
   runtime: 'edge',
 };
@@ -12,7 +14,7 @@ export default async function handler(req: NextRequest) {
 
   const [scheme, encoded] = Authorization.split(' ');
 
-  if (!encoded || scheme !== 'Bearer') {
+  if (scheme !== 'Bearer' || !encoded) {
     return Response.redirect(`${new URL(req.url).origin}/login`, 302);
   }
 
@@ -41,9 +43,7 @@ export default async function handler(req: NextRequest) {
 
 // 获取书签 get
 const getBookmark = async (userUnique: string) => {
-  const BEE_ASST_STORAGE = process.env.BEE_ASST_STORAGE as unknown as KVNamespace;
-  const bookmark = await BEE_ASST_STORAGE.get(`bookmark:${userUnique}`);
-
+  const bookmark = await BEE_ASST_STORAGE_GET(`bookmark:${userUnique}`);
   return new Response(
     JSON.stringify({
       data: bookmark,
@@ -59,8 +59,7 @@ const getBookmark = async (userUnique: string) => {
 
 // 保存书签 post
 const saveBookmark = async (userUnique: string, data: string) => {
-  const BEE_ASST_STORAGE = process.env.BEE_ASST_STORAGE as unknown as KVNamespace;
-  await BEE_ASST_STORAGE.put(`bookmark:${userUnique}`, data);
+  await BEE_ASST_STORAGE_PUT(`bookmark:${userUnique}`, data);
 
   return new Response(
     JSON.stringify({
