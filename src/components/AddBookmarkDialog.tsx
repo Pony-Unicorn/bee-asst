@@ -84,7 +84,7 @@ const AddBookmarkDialog: FC<IProps> = ({ isOpen, cancel, ok }) => {
             <TagBtn
               key={id}
               id={id}
-              tagName={tagName}
+              name={tagName}
               condition={tagSelectList.some((tag) => tag == id) ? 1 : 0}
               action={tagBtnHandle}
             />
