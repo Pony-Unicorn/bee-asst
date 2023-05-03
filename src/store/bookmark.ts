@@ -5,8 +5,8 @@ import depthClone from 'ramda/src/clone';
 import axios from 'axios';
 // import JSZip from 'jszip';
 
-const bookmarkUrl = '/api-dev/bookmark';
-// const bookmarkUrl = '/api/bookmark';
+// const bookmarkUrl = '/api-dev/bookmark';
+const bookmarkUrl = '/api/bookmark';
 
 export type ItemPrimaryKey = string; // 只包含数字的字符串，例如 12、232、1
 
