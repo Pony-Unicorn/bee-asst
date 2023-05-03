@@ -10,6 +10,7 @@ import AddTagDialog from '@/components/AddTagDialog';
 import AddBookmarkDialog from '@/components/AddBookmarkDialog';
 import EditTagViewDialog from '@/components/EditTagViewDialog';
 import EditTagDialog from '@/components/EditTagDialog';
+import EditBookmarkItemDialog from '@/components/EditBookmarkItemDialog';
 
 const Bookmark: FC<{}> = () => {
   const [isEdit, setEdit] = useState(false); // false: 正常状态, true: 编辑状态
@@ -19,9 +20,9 @@ const Bookmark: FC<{}> = () => {
   const [addTagDialogOpen, setAddTagDialogOpen] = useState(false); // 添加标签面板的是否打开
   const [addBookmarkDialogOpen, setAddBookmarkDialogOpen] = useState(false); // 添加书签面板的是否打开
 
-  const [editTagViewDialog, setEditTagViewDialog] = useImmer({ isOpen: false, id: -1 }); // 编辑标签视图面板的数据
-
-  const [editTagDialog, setEditTagDialog] = useImmer({ isOpen: false, id: '' }); // 编辑标签面板的数据
+  const [editTagViewDialog, setEditTagViewDialog] = useImmer({ isOpen: false, id: -1 }); // 编辑标签视图数据
+  const [editTagDialog, setEditTagDialog] = useImmer({ isOpen: false, id: '' }); // 编辑标签数据
+  const [editBookmarkItemDialog, setEditBookmarkItemDialog] = useImmer({ isOpen: false, id: '' }); // 编辑标签数据
 
   const {
     addTag,
@@ -32,6 +33,8 @@ const Bookmark: FC<{}> = () => {
     rmView,
     tagViews,
     bookmarkItems,
+    editBookmarkItem,
+    rmBookmarkItem,
     addBookmarkItem,
     saveBookmark,
     loadBookmark,
@@ -48,6 +51,8 @@ const Bookmark: FC<{}> = () => {
       tagViews: state.view,
       bookmarkItems: state.items,
       addBookmarkItem: state.addItem,
+      editBookmarkItem: state.editItem,
+      rmBookmarkItem: state.rmItem,
       saveBookmark: state.save,
       loadBookmark: state.load,
       state: state.state,
@@ -100,6 +105,7 @@ const Bookmark: FC<{}> = () => {
   const onClickBookmarkItem = (id: string) => {
     if (isEdit) {
       console.log('编辑>>>', id);
+      setEditBookmarkItemDialog({ isOpen: true, id });
       return;
     }
     window.open(bookmarkItems[id].u, '_blank');
@@ -108,7 +114,7 @@ const Bookmark: FC<{}> = () => {
   const onClickViewBtn = (id: number) => {
     if (isEdit) {
       console.log('编辑>>>', id);
-      setEditTagViewDialog({ isOpen: true, id: id });
+      setEditTagViewDialog({ isOpen: true, id });
       return;
     }
     updateTagSelectList(tagViews[id]);
@@ -203,7 +209,7 @@ const Bookmark: FC<{}> = () => {
                   <TagBtn
                     key={id}
                     id={id}
-                    tagName={tagName}
+                    name={tagName}
                     condition={tagSelectList.some((tag) => tag == id) ? 1 : 0}
                     action={tagBtnHandle}
                   />
@@ -277,6 +283,25 @@ const Bookmark: FC<{}> = () => {
             del={(id) => {
               rmTag(id);
               setEditTagDialog({ isOpen: false, id: '' });
+            }}
+          />
+        )}
+
+        {/* 编辑书签弹窗 */}
+        {editBookmarkItemDialog.isOpen && (
+          <EditBookmarkItemDialog
+            isOpen={editBookmarkItemDialog.isOpen}
+            info={bookmarkItems[editBookmarkItemDialog.id]}
+            ok={(id, item) => {
+              editBookmarkItem(id, item);
+              setEditBookmarkItemDialog({ isOpen: false, id: '' });
+            }}
+            cancel={() => {
+              setEditBookmarkItemDialog({ isOpen: false, id: '' });
+            }}
+            del={(id) => {
+              rmBookmarkItem(id);
+              setEditBookmarkItemDialog({ isOpen: false, id: '' });
             }}
           />
         )}
