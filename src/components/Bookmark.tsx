@@ -76,7 +76,7 @@ const Bookmark: FC<{}> = () => {
 
   useEffect(() => {
     loadBookmark();
-  }, []);
+  }, [loadBookmark]);
 
   const tagBtnHandle = (tagId: string) => {
     if (isEdit) {

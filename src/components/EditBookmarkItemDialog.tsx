@@ -101,7 +101,7 @@ const EditBookmarkItemDialog: FC<IProps> = ({ isOpen, info, cancel, ok, del }) =
             <TagBtn
               key={id}
               id={id}
-              tagName={tagName}
+              name={tagName}
               condition={bookmarkItem.t.some((tag) => tag == id) ? 1 : 0}
               action={tagBtnHandle}
             />

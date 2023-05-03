@@ -16,7 +16,7 @@ const BookmarkItem: FC<IProps> = ({ item, action }) => {
       <div className="flex items-center cursor-pointer" onClick={() => action(item.i)}>
         <div className="avatar">
           <div className="w-8 h-8">
-            <img src={getFavicon(item.u)} />
+            <img src={getFavicon(item.u)} alt="bookmark icon" />
           </div>
         </div>
         <p className="w-28 h-10 overflow-y-auto text-sm mx-1">{item.n}</p>
