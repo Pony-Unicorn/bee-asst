@@ -3,6 +3,7 @@ import { immer } from 'zustand/middleware/immer';
 import dayjs from 'dayjs';
 import depthClone from 'ramda/src/clone';
 import axios from 'axios';
+// import JSZip from 'jszip';
 
 const bookmarkUrl = '/api-dev/bookmark';
 // const bookmarkUrl = '/api/bookmark';
@@ -34,6 +35,7 @@ export interface IBookmarkStorageState {
 export interface IBookmarkOperateState {}
 
 export interface IBookmarkAction {
+  changeState: (state: IIndicatorState['state']) => void;
   load: () => Promise<void>;
   save: () => Promise<void>;
   addTag: (newTag: string) => void;
@@ -55,7 +57,11 @@ export const useBookmarkStore = create(
     view: [],
     items: {},
     tags: {},
+    changeState: (state: IIndicatorState['state']) => {
+      set({ state });
+    },
     load: async () => {
+      if (get().state === 'loading') return;
       set({ state: 'loading' });
       try {
         const jsonData = await axios.get(bookmarkUrl, {
@@ -73,6 +79,7 @@ export const useBookmarkStore = create(
         set({ state: 'success' });
       } catch (err) {
         set({ state: 'fail' });
+        console.error('load BookmarkStore fail >>>', err);
       }
     },
     save: async () => {
@@ -83,32 +90,44 @@ export const useBookmarkStore = create(
         items: depthClone(store.items),
         tags: depthClone(store.tags),
       };
-      await axios.post(
-        bookmarkUrl,
-        {
-          data: JSON.stringify(cloudStore),
+
+      // const zip = new JSZip();
+      // zip.file('cloudStore', JSON.stringify(cloudStore));
+      // const data = await zip.generateAsync({ type: 'arraybuffer' });
+      // console.log(data);
+
+      const data = JSON.stringify(cloudStore);
+
+      await axios.post(bookmarkUrl, data, {
+        headers: {
+          // 'Content-Type': 'application/octet-stream',
+          'Content-Type': 'text/plain',
+          Authorization: `Bearer ${localStorage.getItem('bee-asst-Bearer')}`,
         },
-        {
-          headers: {
-            'Content-Type': 'application/octet-stream',
-            Authorization: `Bearer ${localStorage.getItem('bee-asst-Bearer')}`,
-          },
-        }
-      );
+      });
     },
     addTag: (newTag: string) => {
+      if (Object.values(get().tags).includes(newTag)) return; // 禁止名字相同
       set((store) => {
         store.tags[++store.metadata.inc] = newTag;
       });
     },
     rmTag: (tagId: ItemPrimaryKey) => {
       set((store) => {
-        store.view = store.view.map((subArr) => subArr.filter((num) => num !== tagId)).filter((subArr) => subArr.length > 0);
+        store.view = Array.from(
+          new Set(
+            store.view
+              .map((subArr) => subArr.filter((num) => num !== tagId))
+              .filter((subArr) => subArr.length > 0)
+              .map((v) => v.join(':'))
+          )
+        ).map((v) => v.split(':'));
         Object.values(store.items).forEach((item) => (item.t = item.t.filter((num) => num !== tagId)));
         delete store.tags[tagId];
       });
     },
     editTag: (tagId: ItemPrimaryKey, newTag: string) => {
+      if (Object.values(get().tags).includes(newTag)) return; // 禁止名字相同
       set((store) => {
         store.tags[tagId] = newTag;
       });

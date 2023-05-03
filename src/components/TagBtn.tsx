@@ -4,7 +4,7 @@ import clsx from 'clsx';
 export type IProps = {
   id: string;
   tagName: string;
-  condition: 0 | 1 | 2; // 未选中、选中、编辑 state
+  condition: 0 | 1; // 未选中、选中
   action: (id: string) => void;
 };
 

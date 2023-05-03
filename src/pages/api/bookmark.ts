@@ -13,15 +13,13 @@ export default async function handler(req: NextRequest) {
   const [scheme, encoded] = Authorization.split(' ');
 
   if (!encoded || scheme !== 'Bearer') {
-    return new Response(JSON.stringify({ error: { message: 'Malformed authorization header.' } }), {
-      status: 400,
-    });
+    return Response.redirect(`${new URL(req.url).origin}/login`, 302);
   }
 
   const isValid = await jwt.verify(encoded, process.env.JWT_SECRET as string);
 
   if (!isValid) {
-    return Response.redirect('/login');
+    return Response.redirect(`${new URL(req.url).origin}/login`, 302);
   }
 
   // Decoding token
@@ -32,8 +30,7 @@ export default async function handler(req: NextRequest) {
       return await getBookmark(payload.name);
     }
     case 'POST': {
-      const jsonData = await req.json<{ data: any }>();
-      return await saveBookmark(payload.name, jsonData?.data);
+      return await saveBookmark(payload.name, await req.text());
     }
     default:
       return new Response(JSON.stringify({ error: { message: 'Method not allowed.' } }), {
@@ -61,7 +58,7 @@ const getBookmark = async (userUnique: string) => {
 };
 
 // 保存书签 post
-const saveBookmark = async (userUnique: string, data: any) => {
+const saveBookmark = async (userUnique: string, data: string) => {
   const BEE_ASST_STORAGE = process.env.BEE_ASST_STORAGE as unknown as KVNamespace;
   await BEE_ASST_STORAGE.put(`bookmark:${userUnique}`, data);
 

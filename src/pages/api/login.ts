@@ -1,7 +1,6 @@
 import type { NextRequest } from 'next/server';
 import jwt from '@tsndr/cloudflare-worker-jwt';
-
-// import type { KVNamespace } from '@cloudflare/workers-types';
+import type { KVNamespace } from '@cloudflare/workers-types';
 
 export const config = {
   runtime: 'edge',
@@ -25,19 +24,52 @@ export default async function handler(req: NextRequest) {
 
 // 登陆
 const login = async (userUnique: string, psw: string) => {
-  const token = await jwt.sign({ name: userUnique, email: '' }, process.env.JWT_SECRET as string);
+  const BEE_ASST_STORAGE = process.env.BEE_ASST_STORAGE as unknown as KVNamespace;
+  const user = await BEE_ASST_STORAGE.get(`user:${userUnique}`);
 
-  return new Response(
-    JSON.stringify({
-      data: { token: token },
-    }),
-    {
-      status: 200,
-      headers: {
-        'content-type': 'application/json',
-      },
+  if (user) {
+    const jsonUser = JSON.parse(user) as { name: string; psw: string };
+
+    if (userUnique === jsonUser.name && psw === jsonUser.psw) {
+      const token = await jwt.sign({ name: userUnique, email: '' }, process.env.JWT_SECRET as string);
+
+      return new Response(
+        JSON.stringify({
+          data: { token: token },
+        }),
+        {
+          status: 200,
+          headers: {
+            'content-type': 'application/json',
+          },
+        }
+      );
+    } else {
+      return new Response(
+        JSON.stringify({
+          error: 'User not exist.',
+        }),
+        {
+          status: 401,
+          headers: {
+            'content-type': 'application/json',
+          },
+        }
+      );
     }
-  );
+  } else {
+    return new Response(
+      JSON.stringify({
+        error: 'User not exist.',
+      }),
+      {
+        status: 401,
+        headers: {
+          'content-type': 'application/json',
+        },
+      }
+    );
+  }
 };
 
 // 登出

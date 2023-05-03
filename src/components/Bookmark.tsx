@@ -8,6 +8,8 @@ import ViewBtn from '@/components/ViewBtn';
 import BookmarkItem from '@/components/BookmarkItem';
 import AddTagDialog from '@/components/AddTagDialog';
 import AddBookmarkDialog from '@/components/AddBookmarkDialog';
+import EditTagViewDialog from '@/components/EditTagViewDialog';
+import EditTagDialog from '@/components/EditTagDialog';
 
 const Bookmark: FC<{}> = () => {
   const [isEdit, setEdit] = useState(false); // false: 正常状态, true: 编辑状态
@@ -17,21 +19,42 @@ const Bookmark: FC<{}> = () => {
   const [addTagDialogOpen, setAddTagDialogOpen] = useState(false); // 添加标签面板的是否打开
   const [addBookmarkDialogOpen, setAddBookmarkDialogOpen] = useState(false); // 添加书签面板的是否打开
 
-  const { addTag, tags, addView, tagViews, bookmarkItems, addBookmarkItem, saveBookmark, loadBookmark, state } =
-    useBookmarkStore(
-      (state) => ({
-        addTag: state.addTag,
-        tags: state.tags,
-        addView: state.addView,
-        tagViews: state.view,
-        bookmarkItems: state.items,
-        addBookmarkItem: state.addItem,
-        saveBookmark: state.save,
-        loadBookmark: state.load,
-        state: state.state,
-      }),
-      shallow
-    );
+  const [editTagViewDialog, setEditTagViewDialog] = useImmer({ isOpen: false, id: -1 }); // 编辑标签视图面板的数据
+
+  const [editTagDialog, setEditTagDialog] = useImmer({ isOpen: false, id: '' }); // 编辑标签面板的数据
+
+  const {
+    addTag,
+    rmTag,
+    editTag,
+    tags,
+    addView,
+    rmView,
+    tagViews,
+    bookmarkItems,
+    addBookmarkItem,
+    saveBookmark,
+    loadBookmark,
+    state,
+    changeState,
+  } = useBookmarkStore(
+    (state) => ({
+      addTag: state.addTag,
+      rmTag: state.rmTag,
+      editTag: state.editTag,
+      tags: state.tags,
+      addView: state.addView,
+      rmView: state.rmView,
+      tagViews: state.view,
+      bookmarkItems: state.items,
+      addBookmarkItem: state.addItem,
+      saveBookmark: state.save,
+      loadBookmark: state.load,
+      state: state.state,
+      changeState: state.changeState,
+    }),
+    shallow
+  );
 
   // 等于 tagViews.length 没有任何选中, 为下次添加做准备.其他代表在 tagViews 中的索引
   const tagViewSelectIndex = useMemo(() => {
@@ -39,20 +62,21 @@ const Bookmark: FC<{}> = () => {
       if (
         tagSelectList.length === tagViews[i].length &&
         tagSelectList.every((tagId, tagIdIndex) => tagId === tagViews[i][tagIdIndex])
-      )
+      ) {
         return i;
+      }
     }
     return tagViews.length;
   }, [tagSelectList, tagViews]);
 
   useEffect(() => {
-    console.log('Bookmark Mounted...');
-    if (state === 'empty') loadBookmark();
+    loadBookmark();
   }, []);
 
   const tagBtnHandle = (tagId: string) => {
     if (isEdit) {
       console.log('编辑>>>', tagId);
+      setEditTagDialog({ isOpen: true, id: tagId });
       return;
     }
 
@@ -64,7 +88,7 @@ const Bookmark: FC<{}> = () => {
   };
 
   const editBtnHandle = () => {
-    if (isEdit) updateTagSelectList([]);
+    updateTagSelectList([]);
     setEdit(!isEdit);
   };
 
@@ -79,6 +103,15 @@ const Bookmark: FC<{}> = () => {
       return;
     }
     window.open(bookmarkItems[id].u, '_blank');
+  };
+
+  const onClickViewBtn = (id: number) => {
+    if (isEdit) {
+      console.log('编辑>>>', id);
+      setEditTagViewDialog({ isOpen: true, id: id });
+      return;
+    }
+    updateTagSelectList(tagViews[id]);
   };
 
   return (
@@ -103,13 +136,11 @@ const Bookmark: FC<{}> = () => {
                   const viewName = view.map((tagId) => tags[tagId]).join(':');
                   return (
                     <ViewBtn
-                      key={viewName}
+                      key={view.join(':')}
                       id={index}
                       viewName={viewName}
                       condition={tagViewSelectIndex === index ? 1 : 0}
-                      action={(id) => {
-                        updateTagSelectList(tagViews[id]);
-                      }}
+                      action={onClickViewBtn}
                     />
                   );
                 })}
@@ -156,7 +187,12 @@ const Bookmark: FC<{}> = () => {
                 保存
               </button>
 
-              <button className="btn btn-sm" onClick={() => saveBookmark()}>
+              <button
+                className="btn btn-sm"
+                onClick={() => {
+                  saveBookmark();
+                }}
+              >
                 save
               </button>
             </div>
@@ -168,7 +204,7 @@ const Bookmark: FC<{}> = () => {
                     key={id}
                     id={id}
                     tagName={tagName}
-                    condition={isEdit ? 2 : tagSelectList.some((tag) => tag == id) ? 1 : 0}
+                    condition={tagSelectList.some((tag) => tag == id) ? 1 : 0}
                     action={tagBtnHandle}
                   />
                 ))}
@@ -203,6 +239,44 @@ const Bookmark: FC<{}> = () => {
             }}
             cancel={() => {
               setAddTagDialogOpen(false);
+            }}
+          />
+        )}
+
+        {/* 编辑标签视图弹窗 */}
+        {editTagViewDialog.isOpen && (
+          <EditTagViewDialog
+            id={editTagViewDialog.id}
+            name={tagViews[editTagViewDialog.id].map((tagId) => tags[tagId]).join(':')}
+            isOpen={editTagViewDialog.isOpen}
+            ok={() => {
+              setEditTagViewDialog({ isOpen: false, id: -1 });
+            }}
+            cancel={() => {
+              setEditTagViewDialog({ isOpen: false, id: -1 });
+            }}
+            del={(id) => {
+              rmView(id);
+              setEditTagViewDialog({ isOpen: false, id: -1 });
+            }}
+          />
+        )}
+        {/* 编辑标签弹窗 */}
+        {editTagDialog.isOpen && (
+          <EditTagDialog
+            id={editTagDialog.id}
+            name={tags[editTagDialog.id]}
+            isOpen={editTagDialog.isOpen}
+            ok={(id, newName) => {
+              editTag(id, newName);
+              setEditTagDialog({ isOpen: false, id: '' });
+            }}
+            cancel={() => {
+              setEditTagDialog({ isOpen: false, id: '' });
+            }}
+            del={(id) => {
+              rmTag(id);
+              setEditTagDialog({ isOpen: false, id: '' });
             }}
           />
         )}
