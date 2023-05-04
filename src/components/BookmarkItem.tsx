@@ -12,7 +12,7 @@ export type IProps = {
 
 const BookmarkItem: FC<IProps> = ({ item, action }) => {
   return (
-    <div className="flex items-center h-12 m-2">
+    <div className="flex items-center h-12 m-1 px-2 rounded-xl border-2 border-neutral hover:bg-neutral-content">
       <div className="flex items-center cursor-pointer" onClick={() => action(item.i)}>
         <div className="avatar">
           <div className="w-8 h-8">
@@ -21,7 +21,7 @@ const BookmarkItem: FC<IProps> = ({ item, action }) => {
         </div>
         <p className="w-28 h-10 overflow-y-auto text-sm mx-1">{item.n}</p>
       </div>
-      <button className="btn btn-sm" onClick={() => copy(item.u)}>
+      <button className="btn btn-accent btn-sm p-1" onClick={() => copy(item.u)}>
         复制
       </button>
     </div>

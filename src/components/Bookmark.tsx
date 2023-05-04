@@ -122,22 +122,22 @@ const Bookmark: FC = () => {
 
   return (
     <>
-      <div className="max-w-5xl w-10/12 flex flex-col items-center flex-grow p-6 border-2 border-rose-500">
-        <div className="flex w-full m-4">
+      <div className="flex flex-col items-center max-w-screen-xl w-full h-full py-6">
+        <div className="flex w-full">
           <button className="btn" onClick={editBtnHandle}>
             {isEdit ? '取消' : '编辑'}
           </button>
-          <input type="text" placeholder="搜索书签" className="input input-bordered input-success w-full" />
+          <input className="input input-bordered input-info w-full mx-2" type="text" placeholder="搜索书签" />
           <button className="btn" onClick={resetBtnHandle}>
             重置
           </button>
         </div>
 
         {/* 视图列表 */}
-        <div className="flex items-stretch flex-grow w-full">
-          <div className="mockup-window border bg-base-300 flex-none mx-2 w-48">
-            <div className="flex justify-center h-full border-t bg-base-200">
-              <div className="flex flex-col">
+        <div className="flex flex-grow w-full mt-4">
+          <div className="rounded-2xl pt-10 border bg-base-300 flex-none w-48">
+            <div className="flex justify-center h-full rounded-b-2xl border-t bg-base-200">
+              <div className="flex flex-col items-center">
                 {tagViews.map((view, index) => {
                   const viewName = view.map((tagId) => tags[tagId]).join(':');
                   return (
@@ -155,7 +155,7 @@ const Bookmark: FC = () => {
           </div>
 
           {/* 书签列表 */}
-          <div className="mockup-window border bg-base-300 flex-grow mx-2">
+          <div className="flex flex-col rounded-2xl border bg-base-300 flex-grow mx-2">
             <div className="flex p-1">
               <button
                 className="btn btn-sm"
@@ -167,7 +167,7 @@ const Bookmark: FC = () => {
               </button>
             </div>
 
-            <div className="flex w-full h-full border-t bg-base-200">
+            <div className="flex w-full h-full rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-wrap content-start overflow-y-auto">
                 {Object.values(bookmarkItems)
                   .filter((bookmarkItem) => tagSelectList.every((tagSelectId) => bookmarkItem.t.includes(tagSelectId)))
@@ -179,7 +179,7 @@ const Bookmark: FC = () => {
           </div>
 
           {/* 标签列表 */}
-          <div className="mockup-window border bg-base-300 flex-none mx-2 -mr-3">
+          <div className="flex flex-col rounded-2xl border bg-base-300 flex-none">
             <div className="flex p-1">
               <button className="btn btn-sm" onClick={() => setAddTagDialogOpen(true)}>
                 新建
@@ -203,7 +203,7 @@ const Bookmark: FC = () => {
               </button>
             </div>
 
-            <div className="flex flex-col h-full border-t bg-base-200">
+            <div className="flex flex-col h-full rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-wrap w-48">
                 {Object.entries(tags).map(([id, tagName]) => (
                   <TagBtn
