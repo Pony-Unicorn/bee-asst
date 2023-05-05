@@ -162,7 +162,7 @@ const Bookmark: FC = () => {
   // border-2 border-red-500
   return (
     <>
-      <div className="flex flex-col justify-center max-w-screen-xl py-4 mx-auto">
+      <div className="flex flex-col justify-center w-full max-w-screen-xl py-4 mx-auto">
         <div className="flex">
           <button className="btn" onClick={editBtnHandle}>
             {isEdit ? '取消' : '编辑'}
@@ -173,9 +173,9 @@ const Bookmark: FC = () => {
           </button>
         </div>
 
-        <div className="flex flex-grow justify-between mt-4">
+        <div className="flex flex-grow mt-4">
           {/* 视图列表 */}
-          <div className="flex flex-col flex-shrink-0 w-48 rounded-2xl border bg-base-300">
+          <div className="flex flex-col flex-none w-48 rounded-2xl border bg-base-300">
             <div className="h-8 w-8"></div>
             <div className="flex flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-col items-center overflow-y-auto">
@@ -196,7 +196,7 @@ const Bookmark: FC = () => {
           </div>
 
           {/* 书签列表 */}
-          <div className="flex flex-col flex-grow mx-2 rounded-2xl border bg-base-300">
+          <div className="flex flex-col flex-1 mx-2 rounded-2xl border bg-base-300">
             <div className="flex p-1">
               <button
                 className="btn btn-sm"
@@ -220,7 +220,7 @@ const Bookmark: FC = () => {
           </div>
 
           {/* 标签列表 */}
-          <div className="flex flex-col flex-shrink-0 w-48 rounded-2xl border bg-base-300">
+          <div className="flex flex-col flex-none w-48 rounded-2xl border bg-base-300">
             <div className="flex p-1">
               <button className="btn btn-sm" onClick={() => setAddTagDialogOpen(true)}>
                 新建
