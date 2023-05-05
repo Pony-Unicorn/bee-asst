@@ -1,6 +1,5 @@
 import { FC, useEffect, useState } from 'react';
 import clsx from 'clsx';
-import Image from 'next/image';
 import { Inter } from 'next/font/google';
 import { useRouter } from 'next/router';
 
@@ -34,7 +33,7 @@ const Home: FC = () => {
         <header className="flex justify-between items-center">
           <div className="flex justify-start items-center">
             <div className="w-8 h-8 mr-2 rounded-full">
-              <Image src="/images/logo-black.png" alt="logo" width="32" height="32" />
+              <img src="/images/logo-black.png" alt="logo" className="w-8 h-8" width="32" height="32" />
             </div>
             <div className="tabs tabs-boxed">
               <button className={clsx('tab tab-sm', tabIndex === 0 && 'tab-active')} onClick={() => switchTabHandle(0)}>
