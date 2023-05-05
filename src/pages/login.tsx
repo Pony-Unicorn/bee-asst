@@ -30,7 +30,7 @@ const Login: FC = () => {
 
   return (
     <main className={`flex min-h-screen flex-col items-center justify-between ${inter.className}`}>
-      <div className="flex flex-col items-center flex-grow container p-4 border-2">
+      <div className="flex flex-col items-center flex-grow container p-4">
         <div className="form-control">
           <label className="input-group">
             <span>名字</span>
@@ -38,7 +38,7 @@ const Login: FC = () => {
           </label>
           <label className="input-group">
             <span>密码</span>
-            <input type="text" placeholder="" className="input input-bordered" value={psw} onChange={tagPswInputChange} />
+            <input type="password" placeholder="" className="input input-bordered" value={psw} onChange={tagPswInputChange} />
           </label>
           <button
             className="btn"

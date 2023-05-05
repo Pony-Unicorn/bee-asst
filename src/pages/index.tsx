@@ -1,7 +1,8 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import clsx from 'clsx';
 import Image from 'next/image';
 import { Inter } from 'next/font/google';
+import { useRouter } from 'next/router';
 
 import Notes from '@/components/Notes';
 import Kanban from '@/components/Kanban';
@@ -10,6 +11,8 @@ import Bookmark from '@/components/Bookmark';
 const inter = Inter({ subsets: ['latin'] });
 
 const Home: FC = () => {
+  const router = useRouter();
+
   const [tabIndex, setTabIndex] = useState(2); // 0: 笔记, 1: 看板, 2: 书签
 
   const switchTabHandle = (index: number) => {
@@ -17,10 +20,18 @@ const Home: FC = () => {
     setTabIndex(index);
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem('bee-asst-Bearer');
+
+    if (!token) {
+      router.replace('/login');
+    }
+  }, [router]);
+
   return (
-    <main className={`flex flex-col items-center h-screen ${inter.className}`}>
-      <div className="flex flex-col items-center container h-full">
-        <header className="flex justify-between items-center w-full m-2">
+    <main className={`flex flex-col items-center h-screen px-4 ${inter.className}`}>
+      <div className="flex flex-col flex-1 container py-2">
+        <header className="flex justify-between items-center">
           <div className="flex justify-start items-center">
             <div className="w-8 h-8 mr-2 rounded-full">
               <Image src="/images/logo-black.png" alt="logo" width="32" height="32" />
@@ -44,9 +55,7 @@ const Home: FC = () => {
           </div>
         </header>
 
-        <div className="flex items-center justify-center w-full h-full">
-          {[<Notes key={0} />, <Kanban key={1} />, <Bookmark key={2} />][tabIndex]}
-        </div>
+        <div className="flex flex-1">{[<Notes key={0} />, <Kanban key={1} />, <Bookmark key={2} />][tabIndex]}</div>
       </div>
     </main>
   );

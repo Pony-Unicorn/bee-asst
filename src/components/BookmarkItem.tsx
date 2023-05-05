@@ -13,7 +13,7 @@ export type IProps = {
 const BookmarkItem: FC<IProps> = ({ item, action }) => {
   return (
     <div className="flex items-center h-12 m-1 px-2 rounded-xl border-2 border-neutral hover:bg-neutral-content">
-      <div className="flex items-center cursor-pointer" onClick={() => action(item.i)}>
+      <div className="flex items-center cursor-pointer tooltip tooltip-bottom" data-tip={item.u} onClick={() => action(item.i)}>
         <div className="avatar">
           <div className="w-8 h-8">
             <img src={getFavicon(item.u)} alt="bookmark icon" />

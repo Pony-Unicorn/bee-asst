@@ -1,8 +1,11 @@
 import { FC, useState, useEffect, useMemo } from 'react';
 import { useImmer } from 'use-immer';
 import { shallow } from 'zustand/shallow';
+import axios from 'axios';
+import { useRouter } from 'next/router';
+import clsx from 'clsx';
 
-import { useBookmarkStore } from '../store/bookmark';
+import { useBookmarkStore } from '@/store/bookmark';
 import TagBtn from '@/components/TagBtn';
 import ViewBtn from '@/components/ViewBtn';
 import BookmarkItem from '@/components/BookmarkItem';
@@ -11,8 +14,11 @@ import AddBookmarkDialog from '@/components/AddBookmarkDialog';
 import EditTagViewDialog from '@/components/EditTagViewDialog';
 import EditTagDialog from '@/components/EditTagDialog';
 import EditBookmarkItemDialog from '@/components/EditBookmarkItemDialog';
+import apiRouteMap from '@/constants/apiRouteMap';
 
 const Bookmark: FC = () => {
+  const router = useRouter();
+
   const [isEdit, setEdit] = useState(false); // false: 正常状态, true: 编辑状态
 
   const [tagSelectList, updateTagSelectList] = useImmer<string[]>([]); // 选中的 tag 列表
@@ -23,6 +29,8 @@ const Bookmark: FC = () => {
   const [editTagViewDialog, setEditTagViewDialog] = useImmer({ isOpen: false, id: -1 }); // 编辑标签视图数据
   const [editTagDialog, setEditTagDialog] = useImmer({ isOpen: false, id: '' }); // 编辑标签数据
   const [editBookmarkItemDialog, setEditBookmarkItemDialog] = useImmer({ isOpen: false, id: '' }); // 编辑标签数据
+
+  const [isSynching, setSynching] = useState(false);
 
   const {
     addTag,
@@ -37,7 +45,7 @@ const Bookmark: FC = () => {
     rmBookmarkItem,
     addBookmarkItem,
     saveBookmark,
-    loadBookmark,
+    initData,
     state,
     changeState,
   } = useBookmarkStore(
@@ -54,7 +62,7 @@ const Bookmark: FC = () => {
       editBookmarkItem: state.editItem,
       rmBookmarkItem: state.rmItem,
       saveBookmark: state.save,
-      loadBookmark: state.load,
+      initData: state.initData,
       state: state.state,
       changeState: state.changeState,
     }),
@@ -74,9 +82,34 @@ const Bookmark: FC = () => {
     return tagViews.length;
   }, [tagSelectList, tagViews]);
 
+  const loadBookmark = async () => {
+    const token = localStorage.getItem('bee-asst-Bearer');
+
+    if (!token) {
+      router.replace('/login');
+    }
+
+    if (state === 'loading') return;
+    changeState('loading');
+
+    try {
+      const jsonData = await axios.get(apiRouteMap.bookmark, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = JSON.parse(jsonData.data.data);
+      if (data) {
+        initData(data);
+      }
+      changeState('success');
+    } catch (err) {
+      changeState('fail');
+      console.error('load BookmarkStore fail >>>', err);
+    }
+  };
+
   useEffect(() => {
     loadBookmark();
-  }, [loadBookmark]);
+  }, []);
 
   const tagBtnHandle = (tagId: string) => {
     if (isEdit) {
@@ -120,10 +153,17 @@ const Bookmark: FC = () => {
     updateTagSelectList(tagViews[id]);
   };
 
+  const autoSynching = async () => {
+    setSynching(true);
+    await saveBookmark();
+    setSynching(false);
+  };
+
+  // border-2 border-red-500
   return (
     <>
-      <div className="flex flex-col items-center max-w-screen-xl w-full h-full py-6">
-        <div className="flex w-full">
+      <div className="flex flex-col justify-center max-w-screen-xl py-4 mx-auto">
+        <div className="flex">
           <button className="btn" onClick={editBtnHandle}>
             {isEdit ? '取消' : '编辑'}
           </button>
@@ -133,11 +173,12 @@ const Bookmark: FC = () => {
           </button>
         </div>
 
-        {/* 视图列表 */}
-        <div className="flex flex-grow w-full mt-4">
-          <div className="rounded-2xl pt-10 border bg-base-300 flex-none w-48">
-            <div className="flex justify-center h-full rounded-b-2xl border-t bg-base-200">
-              <div className="flex flex-col items-center">
+        <div className="flex flex-grow justify-between mt-4">
+          {/* 视图列表 */}
+          <div className="flex flex-col flex-shrink-0 w-48 rounded-2xl border bg-base-300">
+            <div className="h-8 w-8"></div>
+            <div className="flex flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
+              <div className="flex flex-col items-center overflow-y-auto">
                 {tagViews.map((view, index) => {
                   const viewName = view.map((tagId) => tags[tagId]).join(':');
                   return (
@@ -155,7 +196,7 @@ const Bookmark: FC = () => {
           </div>
 
           {/* 书签列表 */}
-          <div className="flex flex-col rounded-2xl border bg-base-300 flex-grow mx-2">
+          <div className="flex flex-col flex-grow mx-2 rounded-2xl border bg-base-300">
             <div className="flex p-1">
               <button
                 className="btn btn-sm"
@@ -167,7 +208,7 @@ const Bookmark: FC = () => {
               </button>
             </div>
 
-            <div className="flex w-full h-full rounded-b-2xl border-t bg-base-200">
+            <div className="flex flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-wrap content-start overflow-y-auto">
                 {Object.values(bookmarkItems)
                   .filter((bookmarkItem) => tagSelectList.every((tagSelectId) => bookmarkItem.t.includes(tagSelectId)))
@@ -179,7 +220,7 @@ const Bookmark: FC = () => {
           </div>
 
           {/* 标签列表 */}
-          <div className="flex flex-col rounded-2xl border bg-base-300 flex-none">
+          <div className="flex flex-col flex-shrink-0 w-48 rounded-2xl border bg-base-300">
             <div className="flex p-1">
               <button className="btn btn-sm" onClick={() => setAddTagDialogOpen(true)}>
                 新建
@@ -187,24 +228,22 @@ const Bookmark: FC = () => {
               <button
                 className="btn btn-sm"
                 onClick={() => {
-                  if (tagViewSelectIndex === tagViews.length) addView(tagSelectList);
+                  if (tagViewSelectIndex === tagViews.length) {
+                    addView(tagSelectList);
+                    autoSynching();
+                  }
                 }}
               >
                 保存
               </button>
 
-              <button
-                className="btn btn-sm"
-                onClick={() => {
-                  saveBookmark();
-                }}
-              >
-                save
+              <button className={clsx('btn btn-sm', isSynching && 'loading')} onClick={autoSynching}>
+                同步
               </button>
             </div>
 
-            <div className="flex flex-col h-full rounded-b-2xl border-t bg-base-200">
-              <div className="flex flex-wrap w-48">
+            <div className="flex flex-col flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
+              <div className="flex flex-wrap overflow-y-auto">
                 {Object.entries(tags).map(([id, tagName]) => (
                   <TagBtn
                     key={id}
@@ -228,6 +267,7 @@ const Bookmark: FC = () => {
             isOpen={addBookmarkDialogOpen}
             ok={(item) => {
               addBookmarkItem(item);
+              autoSynching();
               setAddBookmarkDialogOpen(false);
             }}
             cancel={() => {
@@ -241,6 +281,7 @@ const Bookmark: FC = () => {
             isOpen={addTagDialogOpen}
             ok={(tagName) => {
               addTag(tagName);
+              autoSynching();
               setAddTagDialogOpen(false);
             }}
             cancel={() => {
@@ -263,6 +304,7 @@ const Bookmark: FC = () => {
             }}
             del={(id) => {
               rmView(id);
+              autoSynching();
               setEditTagViewDialog({ isOpen: false, id: -1 });
             }}
           />
@@ -275,6 +317,7 @@ const Bookmark: FC = () => {
             isOpen={editTagDialog.isOpen}
             ok={(id, newName) => {
               editTag(id, newName);
+              autoSynching();
               setEditTagDialog({ isOpen: false, id: '' });
             }}
             cancel={() => {
@@ -282,6 +325,7 @@ const Bookmark: FC = () => {
             }}
             del={(id) => {
               rmTag(id);
+              autoSynching();
               setEditTagDialog({ isOpen: false, id: '' });
             }}
           />
@@ -294,6 +338,7 @@ const Bookmark: FC = () => {
             info={bookmarkItems[editBookmarkItemDialog.id]}
             ok={(id, item) => {
               editBookmarkItem(id, item);
+              autoSynching();
               setEditBookmarkItemDialog({ isOpen: false, id: '' });
             }}
             cancel={() => {
@@ -301,6 +346,7 @@ const Bookmark: FC = () => {
             }}
             del={(id) => {
               rmBookmarkItem(id);
+              autoSynching();
               setEditBookmarkItemDialog({ isOpen: false, id: '' });
             }}
           />

@@ -1,6 +1,7 @@
 import type { NextRequest } from 'next/server';
 import jwt from '@tsndr/cloudflare-worker-jwt';
-import type { KVNamespace } from '@cloudflare/workers-types';
+
+import { BEE_ASST_STORAGE_GET } from '../../../libs/wrapKV';
 
 export const config = {
   runtime: 'edge',
@@ -24,8 +25,7 @@ export default async function handler(req: NextRequest) {
 
 // 登陆
 const login = async (userUnique: string, psw: string) => {
-  const BEE_ASST_STORAGE = process.env.BEE_ASST_STORAGE as unknown as KVNamespace;
-  const user = await BEE_ASST_STORAGE.get(`user:${userUnique}`);
+  const user = await BEE_ASST_STORAGE_GET(`user:${userUnique}`);
 
   if (user) {
     const jsonUser = JSON.parse(user) as { name: string; psw: string };

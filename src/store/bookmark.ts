@@ -35,7 +35,7 @@ export interface IBookmarkOperateState {}
 
 export interface IBookmarkAction {
   changeState: (state: IIndicatorState['state']) => void;
-  load: () => Promise<void>;
+  initData: (data: IBookmarkStorageState) => void;
   save: () => Promise<void>;
   addTag: (newTag: string) => void;
   rmTag: (tagId: ItemPrimaryKey) => void;
@@ -59,27 +59,13 @@ export const useBookmarkStore = create(
     changeState: (state: IIndicatorState['state']) => {
       set({ state });
     },
-    load: async () => {
-      if (get().state === 'loading') return;
-      set({ state: 'loading' });
-      try {
-        const jsonData = await axios.get(apiRouteMap.bookmark, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('bee-asst-Bearer')}` },
-        });
-        const data = JSON.parse(jsonData.data.data);
-        if (data) {
-          set((store) => {
-            store.metadata = data.metadata;
-            store.view = data.view;
-            store.items = data.items;
-            store.tags = data.tags;
-          });
-        }
-        set({ state: 'success' });
-      } catch (err) {
-        set({ state: 'fail' });
-        console.error('load BookmarkStore fail >>>', err);
-      }
+    initData: (data: IBookmarkStorageState) => {
+      set((store) => {
+        store.metadata = data.metadata;
+        store.view = data.view;
+        store.items = data.items;
+        store.tags = data.tags;
+      });
     },
     save: async () => {
       const store = get();
