@@ -1,6 +1,7 @@
 Bee Asst
 
-笔记、个人任务、书签等工具，基于 nextjs、tailwindcss、cloudflare pages、cloudflare worker 开发
+缩写 Ba ，也代表了学士学位
+笔记、个人任务、书签(M)等工具，基于 nextjs、tailwindcss、cloudflare pages、cloudflare worker 开发
 
 ## Install
 
@@ -54,6 +55,14 @@ yarn dev
 - 添加版本号
 - 界面 UI 的优化
   - 自动获取网页标题
+- 整理最佳实践
+
+## Think
+
+- 互联网的第一课书签
+- 书签分为三部分：单标签，组合标签，视图
+- 分享 /share?u=user-unique&combo_tag=id1,id2,id3
+- bookmark:share:user-unique=[0,2,4]
 
 ## 感谢
 

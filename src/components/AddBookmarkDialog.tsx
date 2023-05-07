@@ -21,7 +21,7 @@ const AddBookmarkDialog: FC<IProps> = ({ isOpen, cancel, ok }) => {
 
   const { tags } = useBookmarkStore(
     (state) => ({
-      tags: state.tags,
+      tags: state.tagSet,
     }),
     shallow
   );

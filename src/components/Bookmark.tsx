@@ -5,13 +5,13 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import clsx from 'clsx';
 
-import { useBookmarkStore } from '@/store/bookmark';
+import { useBookmarkStore, IBookmarkItem } from '@/store/bookmark';
 import TagBtn from '@/components/TagBtn';
-import ViewBtn from '@/components/ViewBtn';
+import ComboTagBtn from '@/components/ComboTagBtn';
 import BookmarkItem from '@/components/BookmarkItem';
 import AddTagDialog from '@/components/AddTagDialog';
 import AddBookmarkDialog from '@/components/AddBookmarkDialog';
-import EditTagViewDialog from '@/components/EditTagViewDialog';
+import EditComboTagDialog from '@/components/EditComboTagDialog';
 import EditTagDialog from '@/components/EditTagDialog';
 import EditBookmarkItemDialog from '@/components/EditBookmarkItemDialog';
 import apiRouteMap from '@/constants/apiRouteMap';
@@ -36,10 +36,10 @@ const Bookmark: FC = () => {
     addTag,
     rmTag,
     editTag,
-    tags,
-    addView,
-    rmView,
-    tagViews,
+    tagSet,
+    addComboTag,
+    rmComboTag,
+    comboTagSet,
     bookmarkItems,
     editBookmarkItem,
     rmBookmarkItem,
@@ -53,10 +53,10 @@ const Bookmark: FC = () => {
       addTag: state.addTag,
       rmTag: state.rmTag,
       editTag: state.editTag,
-      tags: state.tags,
-      addView: state.addView,
-      rmView: state.rmView,
-      tagViews: state.view,
+      tagSet: state.tagSet,
+      addComboTag: state.addComboTag,
+      rmComboTag: state.rmComboTag,
+      comboTagSet: state.comboTagSet,
       bookmarkItems: state.items,
       addBookmarkItem: state.addItem,
       editBookmarkItem: state.editItem,
@@ -69,18 +69,18 @@ const Bookmark: FC = () => {
     shallow
   );
 
-  // 等于 tagViews.length 没有任何选中, 为下次添加做准备.其他代表在 tagViews 中的索引
+  // 等于 tagViews.length 没有任何选中, 为下次添加做准备.其他代表在 comboTagSet 中的索引
   const tagViewSelectIndex = useMemo(() => {
-    for (let i = 0, l = tagViews.length; i < l; i++) {
+    for (let i = 0, l = comboTagSet.length; i < l; i++) {
       if (
-        tagSelectList.length === tagViews[i].length &&
-        tagSelectList.every((tagId, tagIdIndex) => tagId === tagViews[i][tagIdIndex])
+        tagSelectList.length === comboTagSet[i].length &&
+        tagSelectList.every((tagId, tagIdIndex) => tagId === comboTagSet[i][tagIdIndex])
       ) {
         return i;
       }
     }
-    return tagViews.length;
-  }, [tagSelectList, tagViews]);
+    return comboTagSet.length;
+  }, [tagSelectList, comboTagSet]);
 
   const loadBookmark = async () => {
     const token = localStorage.getItem('bee-asst-Bearer');
@@ -93,12 +93,21 @@ const Bookmark: FC = () => {
     changeState('loading');
 
     try {
-      const jsonData = await axios.get(apiRouteMap.bookmark, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = JSON.parse(jsonData.data.data);
-      if (data) {
-        initData(data);
+      const jsonData = await axios
+        .get(apiRouteMap.bookmark, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => res.data);
+
+      if (jsonData.data) {
+        const bookmark = JSON.parse(jsonData.data.bookmark);
+        bookmark.comboTagSet = bookmark.comboTagSet.map((comboTag: number[]) => comboTag.map((tag) => String(tag)));
+        bookmark.items = (bookmark.items as IBookmarkItem[]).reduce((pre, cur) => {
+          pre[cur.i] = cur;
+          return pre;
+        }, {} as Record<string, IBookmarkItem>);
+        console.log(bookmark);
+        initData(bookmark, { lastReadTime: jsonData.data.readTime });
       }
       changeState('success');
     } catch (err) {
@@ -144,18 +153,23 @@ const Bookmark: FC = () => {
     window.open(bookmarkItems[id].u, '_blank');
   };
 
-  const onClickViewBtn = (id: number) => {
+  const onClickComboTagBtn = (id: number) => {
     if (isEdit) {
       console.log('编辑>>>', id);
       setEditTagViewDialog({ isOpen: true, id });
       return;
     }
-    updateTagSelectList(tagViews[id]);
+    updateTagSelectList(comboTagSet[id]);
   };
 
   const autoSynching = async () => {
     setSynching(true);
-    await saveBookmark();
+    try {
+      await saveBookmark();
+    } catch (err) {
+      console.log(err);
+      await loadBookmark();
+    }
     setSynching(false);
   };
 
@@ -174,20 +188,20 @@ const Bookmark: FC = () => {
         </div>
 
         <div className="flex flex-grow mt-4">
-          {/* 视图列表 */}
+          {/* 组合 tag 列表 */}
           <div className="flex flex-col flex-none w-48 rounded-2xl border bg-base-300">
             <div className="h-8 w-8"></div>
             <div className="flex flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-col items-center overflow-y-auto">
-                {tagViews.map((view, index) => {
-                  const viewName = view.map((tagId) => tags[tagId]).join(':');
+                {comboTagSet.map((view, index) => {
+                  const viewName = view.map((tagId) => tagSet[tagId]).join(':');
                   return (
-                    <ViewBtn
+                    <ComboTagBtn
                       key={view.join(':')}
                       id={index}
-                      viewName={viewName}
+                      comboTagName={viewName}
                       condition={tagViewSelectIndex === index ? 1 : 0}
-                      action={onClickViewBtn}
+                      action={onClickComboTagBtn}
                     />
                   );
                 })}
@@ -228,8 +242,8 @@ const Bookmark: FC = () => {
               <button
                 className="btn btn-sm"
                 onClick={() => {
-                  if (tagViewSelectIndex === tagViews.length) {
-                    addView(tagSelectList);
+                  if (tagViewSelectIndex === comboTagSet.length) {
+                    addComboTag(tagSelectList);
                     autoSynching();
                   }
                 }}
@@ -244,7 +258,7 @@ const Bookmark: FC = () => {
 
             <div className="flex flex-col flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-wrap overflow-y-auto">
-                {Object.entries(tags).map(([id, tagName]) => (
+                {Object.entries(tagSet).map(([id, tagName]) => (
                   <TagBtn
                     key={id}
                     id={id}
@@ -290,11 +304,11 @@ const Bookmark: FC = () => {
           />
         )}
 
-        {/* 编辑标签视图弹窗 */}
+        {/* 编辑组合标签弹窗 */}
         {editTagViewDialog.isOpen && (
-          <EditTagViewDialog
+          <EditComboTagDialog
             id={editTagViewDialog.id}
-            name={tagViews[editTagViewDialog.id].map((tagId) => tags[tagId]).join(':')}
+            name={comboTagSet[editTagViewDialog.id].map((tagId) => tagSet[tagId]).join(':')}
             isOpen={editTagViewDialog.isOpen}
             ok={() => {
               setEditTagViewDialog({ isOpen: false, id: -1 });
@@ -303,7 +317,7 @@ const Bookmark: FC = () => {
               setEditTagViewDialog({ isOpen: false, id: -1 });
             }}
             del={(id) => {
-              rmView(id);
+              rmComboTag(id);
               autoSynching();
               setEditTagViewDialog({ isOpen: false, id: -1 });
             }}
@@ -313,7 +327,7 @@ const Bookmark: FC = () => {
         {editTagDialog.isOpen && (
           <EditTagDialog
             id={editTagDialog.id}
-            name={tags[editTagDialog.id]}
+            name={tagSet[editTagDialog.id]}
             isOpen={editTagDialog.isOpen}
             ok={(id, newName) => {
               editTag(id, newName);

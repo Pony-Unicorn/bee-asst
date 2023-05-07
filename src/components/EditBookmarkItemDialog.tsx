@@ -18,7 +18,7 @@ const EditBookmarkItemDialog: FC<IProps> = ({ isOpen, info, cancel, ok, del }) =
 
   const { tags } = useBookmarkStore(
     (state) => ({
-      tags: state.tags,
+      tags: state.tagSet,
     }),
     shallow
   );

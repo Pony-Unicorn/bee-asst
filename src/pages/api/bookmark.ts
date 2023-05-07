@@ -1,6 +1,4 @@
 import type { NextRequest } from 'next/server';
-import type { KVNamespace } from '@cloudflare/workers-types';
-
 import jwt from '@tsndr/cloudflare-worker-jwt';
 
 import { BEE_ASST_STORAGE_GET, BEE_ASST_STORAGE_PUT } from '../../../libs/wrapKV';
@@ -8,6 +6,8 @@ import { BEE_ASST_STORAGE_GET, BEE_ASST_STORAGE_PUT } from '../../../libs/wrapKV
 export const config = {
   runtime: 'edge',
 };
+
+type ISubmitData = { bookmark: string; lastReadTime: number };
 
 export default async function handler(req: NextRequest) {
   const Authorization = req.headers.get('Authorization') || '';
@@ -32,7 +32,7 @@ export default async function handler(req: NextRequest) {
       return await getBookmark(payload.name);
     }
     case 'POST': {
-      return await saveBookmark(payload.name, await req.text());
+      return await saveBookmark(payload.name, await req.json());
     }
     default:
       return new Response(JSON.stringify({ error: { message: 'Method not allowed.' } }), {
@@ -46,7 +46,12 @@ const getBookmark = async (userUnique: string) => {
   const bookmark = await BEE_ASST_STORAGE_GET(`bookmark:${userUnique}`);
   return new Response(
     JSON.stringify({
-      data: bookmark,
+      code: 0,
+      data: {
+        bookmark,
+        readTime: Date.now(),
+      },
+      msg: 'Success',
     }),
     {
       status: 200,
@@ -58,12 +63,34 @@ const getBookmark = async (userUnique: string) => {
 };
 
 // 保存书签 post
-const saveBookmark = async (userUnique: string, data: string) => {
-  await BEE_ASST_STORAGE_PUT(`bookmark:${userUnique}`, data);
+const saveBookmark = async (userUnique: string, data: ISubmitData) => {
+  const bookmark = await BEE_ASST_STORAGE_GET(`bookmark:${userUnique}`);
+
+  const bookmarkData = JSON.parse(bookmark!);
+
+  if (data.lastReadTime < bookmarkData.metadata.lastUpdateTime) {
+    return new Response(
+      JSON.stringify({
+        code: -1,
+        msg: 'Fail! Please update the data',
+      }),
+      {
+        status: 409,
+        headers: {
+          'content-type': 'application/json',
+        },
+      }
+    );
+  }
+
+  await BEE_ASST_STORAGE_PUT(`bookmark:${userUnique}`, data.bookmark);
 
   return new Response(
     JSON.stringify({
       code: 0,
+      data: {
+        readTime: Date.now(),
+      },
       msg: 'Success!',
     }),
     {

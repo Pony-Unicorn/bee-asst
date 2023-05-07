@@ -1,4 +1,4 @@
-import { FC, useState, ChangeEvent, useEffect } from 'react';
+import { FC, useEffect } from 'react';
 import clsx from 'clsx';
 
 export type IProps = {
@@ -10,7 +10,7 @@ export type IProps = {
   del: (id: number) => void;
 };
 
-const EditTagViewDialog: FC<IProps> = ({ isOpen, id, name, cancel, ok, del }) => {
+const EditComboTagDialog: FC<IProps> = ({ isOpen, id, name, cancel, ok, del }) => {
   useEffect(() => {
     console.log('EditTagViewDialog Mounted...');
   }, []);
@@ -18,7 +18,7 @@ const EditTagViewDialog: FC<IProps> = ({ isOpen, id, name, cancel, ok, del }) =>
   return (
     <div className={clsx('modal', isOpen && 'modal-open')}>
       <div className="modal-box">
-        <h3 className="font-bold text-lg">编辑标签视图</h3>
+        <h3 className="font-bold text-lg">编辑标签组合</h3>
         <div className="form-control">
           <label className="input-group">
             <span>名字</span>
@@ -41,4 +41,4 @@ const EditTagViewDialog: FC<IProps> = ({ isOpen, id, name, cancel, ok, del }) =>
   );
 };
 
-export default EditTagViewDialog;
+export default EditComboTagDialog;

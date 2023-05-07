@@ -5,16 +5,16 @@ import TagBtn from '@/components/TagBtn';
 
 export type IProps = {
   id: number;
-  viewName: string;
+  comboTagName: string;
   condition: 0 | 1; // 未选中、选中
   action: (id: number) => void;
 };
 
-const ViewBtn: FC<IProps> = ({ id, viewName, condition, action }) => {
+const ComboTagBtn: FC<IProps> = ({ id, comboTagName, condition, action }) => {
   return (
     <TagBtn
       id={String(id)}
-      name={viewName}
+      name={comboTagName}
       condition={condition}
       action={(id) => {
         action(Number(id));
@@ -24,10 +24,10 @@ const ViewBtn: FC<IProps> = ({ id, viewName, condition, action }) => {
   return (
     <div className="m-2">
       <div className={clsx('btn btn-primary btn-xs', condition !== 1 && 'btn-outline')} onClick={() => action(id)}>
-        {viewName}
+        {comboTagName}
       </div>
     </div>
   );
 };
 
-export default ViewBtn;
+export default ComboTagBtn;
