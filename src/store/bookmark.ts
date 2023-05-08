@@ -31,6 +31,7 @@ export interface IExtraState {
 export interface IBookmarkStorageState {
   metadata: { version: string; inc: number; lastUpdateTime: number }; // lastUpdateTime: 单位为妙
   tagSet: Record<ItemPrimaryKey, string>; // {1:"通用",2:"媒体",3:"博客",4:"工具",5:"新闻",6:"区块链",7:"前端",8:"后端",9:"框架",10:"游戏"}
+  tagSetOrder: ItemPrimaryKey[]; // 标签顺序
   comboTagSet: Record<string, ComboTag>; // 排序方式按照 id 转成数字正序 {id:{isPub: false,tags: [4,6,8,9]}}
   items: Record<ItemPrimaryKey, IBookmarkItem>;
 }
@@ -57,6 +58,7 @@ export const useBookmarkStore = create(
     lastReadTime: 0,
     metadata: { version: '0.0.0', inc: 0, lastUpdateTime: 0 },
     comboTagSet: {},
+    tagSetOrder: [],
     items: {},
     tagSet: {},
     changeState: (state: IExtraState['state']) => {
@@ -68,6 +70,7 @@ export const useBookmarkStore = create(
         store.comboTagSet = data.comboTagSet;
         store.items = data.items;
         store.tagSet = data.tagSet;
+        store.tagSetOrder = data.tagSetOrder;
         store.lastReadTime = extraState.lastReadTime;
       });
     },
@@ -78,6 +81,7 @@ export const useBookmarkStore = create(
         comboTagSet: depthClone(store.comboTagSet),
         items: depthClone(store.items),
         tagSet: depthClone(store.tagSet),
+        tagSetOrder: depthClone(store.tagSetOrder),
       };
 
       cloudStore.metadata.lastUpdateTime = Date.now(); // 更新写入时间

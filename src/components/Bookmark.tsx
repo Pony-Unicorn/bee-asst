@@ -33,10 +33,11 @@ const Bookmark: FC = () => {
   const [isSynching, setSynching] = useState(false);
 
   const {
+    tagSet,
+    tagSetOrder,
     addTag,
     rmTag,
     editTag,
-    tagSet,
     addComboTag,
     rmComboTag,
     comboTagSet,
@@ -51,6 +52,7 @@ const Bookmark: FC = () => {
   } = useBookmarkStore(
     (state) => ({
       tagSet: state.tagSet,
+      tagSetOrder: state.tagSetOrder,
       addTag: state.addTag,
       rmTag: state.rmTag,
       editTag: state.editTag,
@@ -170,7 +172,7 @@ const Bookmark: FC = () => {
   // border-2 border-red-500
   return (
     <>
-      <div className="flex flex-col justify-center w-full max-w-screen-xl py-4 mx-auto">
+      <div className="flex flex-col justify-center w-full max-w-screen-2xl py-4 mx-auto">
         <div className="flex">
           <button className="btn" onClick={editBtnHandle}>
             {isEdit ? '取消' : '编辑'}
@@ -215,8 +217,8 @@ const Bookmark: FC = () => {
               </button>
             </div>
 
-            <div className="flex flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
-              <div className="flex flex-wrap content-start overflow-y-auto">
+            <div className="flex flex-grow justify-center min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
+              <div className="flex flex-wrap content-start overflow-y-auto overflow-x-hidden">
                 {Object.values(bookmarkItems)
                   .filter((bookmarkItem) => tagSelectList.every((tagSelectId) => bookmarkItem.t.includes(tagSelectId)))
                   .map((bookmarkItem) => (
@@ -249,11 +251,11 @@ const Bookmark: FC = () => {
 
             <div className="flex flex-col flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-wrap overflow-y-auto">
-                {Object.entries(tagSet).map(([id, tagName]) => (
+                {tagSetOrder.map((id) => (
                   <TagBtn
                     key={id}
                     id={id}
-                    name={tagName}
+                    name={tagSet[id]}
                     condition={tagSelectList.some((tag) => tag == id) ? 1 : 0}
                     action={tagBtnHandle}
                   />
