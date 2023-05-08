@@ -217,7 +217,7 @@ const Bookmark: FC = () => {
               </button>
             </div>
 
-            <div className="flex flex-grow justify-center min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
+            <div className="flex flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-wrap content-start overflow-y-auto overflow-x-hidden">
                 {Object.values(bookmarkItems)
                   .filter((bookmarkItem) => tagSelectList.every((tagSelectId) => bookmarkItem.t.includes(tagSelectId)))
