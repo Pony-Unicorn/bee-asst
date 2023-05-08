@@ -287,8 +287,9 @@ const Bookmark: FC = () => {
           <AddTagDialog
             isOpen={addTagDialogOpen}
             ok={(tagName) => {
-              addTag(tagName);
-              autoSynching();
+              if (addTag(tagName)) {
+                autoSynching();
+              }
               setAddTagDialogOpen(false);
             }}
             cancel={() => {

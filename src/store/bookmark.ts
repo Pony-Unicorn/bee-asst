@@ -38,7 +38,7 @@ export interface IBookmarkAction {
   changeState: (state: IExtraState['state']) => void;
   initData: (data: IBookmarkStorageState, extraState: Pick<IExtraState, 'lastReadTime'>) => void;
   save: () => Promise<void>;
-  addTag: (newTag: string) => void;
+  addTag: (newTag: string) => boolean;
   rmTag: (tagId: ItemPrimaryKey) => boolean;
   editTag: (tagId: ItemPrimaryKey, newTag: string) => boolean;
   addComboTag: (tagIds: ItemPrimaryKey[]) => void;
@@ -97,10 +97,14 @@ export const useBookmarkStore = create(
       set({ lastReadTime: Date.now() });
     },
     addTag: (newTag: string) => {
-      if (Object.values(get().tagSet).includes(newTag)) return; // 禁止名字相同
+      if (Object.values(get().tagSet).includes(newTag)) return false; // 禁止名字相同
+
       set((store) => {
         store.tagSet[++store.metadata.inc] = newTag;
+        store.tagSetOrder.push(String(store.metadata.inc));
       });
+
+      return true;
     },
     rmTag: (tagId: ItemPrimaryKey) => {
       if (Object.values(get().comboTagSet).some((comboTag) => comboTag.tags.includes(tagId))) return false;
@@ -108,6 +112,7 @@ export const useBookmarkStore = create(
 
       set((store) => {
         delete store.tagSet[tagId];
+        store.tagSetOrder.splice(store.tagSetOrder.indexOf(tagId), 1);
       });
 
       return true;
