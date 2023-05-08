@@ -185,7 +185,7 @@ const Bookmark: FC = () => {
           {/* 组合 tag 列表 */}
           <div className="flex flex-col flex-none w-48 rounded-2xl border bg-base-300">
             <div className="h-8 w-8"></div>
-            <div className="flex flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
+            <div className="flex justify-center flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-col items-center overflow-y-auto">
                 {Object.keys(comboTagSet).map((key) => {
                   return (
