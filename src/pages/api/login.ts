@@ -28,7 +28,7 @@ const login = async (userUnique: string, psw: string) => {
   const user = await BEE_ASST_STORAGE_GET(`user:${userUnique}`);
 
   if (user) {
-    const jsonUser = JSON.parse(user) as { name: string; psw: string };
+    const jsonUser = JSON.parse(user as string) as { name: string; psw: string };
 
     if (userUnique === jsonUser.name && psw === jsonUser.psw) {
       const token = await jwt.sign({ name: userUnique, email: '' }, process.env.JWT_SECRET as string);
