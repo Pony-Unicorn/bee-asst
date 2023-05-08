@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import jwt from '@tsndr/cloudflare-worker-jwt';
+import pako from 'pako';
 
 import { BEE_ASST_STORAGE_GET, BEE_ASST_STORAGE_PUT } from '../../../libs/wrapKV';
 
@@ -43,12 +44,13 @@ export default async function handler(req: NextRequest) {
 
 // 获取书签 get
 const getBookmark = async (userUnique: string) => {
-  const bookmark = await BEE_ASST_STORAGE_GET(`bookmark:${userUnique}`);
+  const bookmark = await BEE_ASST_STORAGE_GET(`bookmark:${userUnique}`, true);
+
   return new Response(
     JSON.stringify({
       code: 0,
       data: {
-        bookmark,
+        bookmark: pako.ungzip(bookmark as ArrayBuffer, { to: 'string' }),
         readTime: Date.now(),
       },
       msg: 'Success',
@@ -64,8 +66,11 @@ const getBookmark = async (userUnique: string) => {
 
 // 保存书签 post
 const saveBookmark = async (userUnique: string, data: ISubmitData) => {
-  const bookmark = await BEE_ASST_STORAGE_GET(`bookmark:${userUnique}`);
-  const bookmarkData = JSON.parse(bookmark!);
+  const bookmark = await BEE_ASST_STORAGE_GET(`bookmark:${userUnique}`, true);
+
+  const bookmarkStr = pako.ungzip(bookmark as ArrayBuffer, { to: 'string' });
+
+  const bookmarkData = JSON.parse(bookmarkStr);
 
   if (data.lastReadTime < bookmarkData.metadata.lastUpdateTime) {
     return new Response(
@@ -82,7 +87,7 @@ const saveBookmark = async (userUnique: string, data: ISubmitData) => {
     );
   }
 
-  await BEE_ASST_STORAGE_PUT(`bookmark:${userUnique}`, data.bookmark);
+  await BEE_ASST_STORAGE_PUT(`bookmark:${userUnique}`, pako.gzip(data.bookmark));
 
   return new Response(
     JSON.stringify({

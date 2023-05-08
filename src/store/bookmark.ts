@@ -6,8 +6,6 @@ import axios from 'axios';
 import apiRouteMap from '@/constants/apiRouteMap';
 import { genUUID } from '@/utils/common';
 
-// import JSZip from 'jszip';
-
 export type ItemPrimaryKey = string; // 只包含数字的字符串，例如 12、232、1
 
 export interface IBookmarkItem {

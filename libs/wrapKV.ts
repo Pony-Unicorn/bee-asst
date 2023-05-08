@@ -5,7 +5,7 @@ const account_identifier = process.env.CF_ACCOUNT_IDENTIFIER;
 const namespace_identifier = process.env.CF_NAMESPACE_IDENTIFIER;
 const cf_bearer = process.env.CF_BEARER;
 
-export const BEE_ASST_STORAGE_GET = async (keyName: string) => {
+export const BEE_ASST_STORAGE_GET = async (keyName: string, isArrayBuffer = false) => {
   if (isAPI) {
     const options = {
       method: 'GET',
@@ -17,7 +17,13 @@ export const BEE_ASST_STORAGE_GET = async (keyName: string) => {
       options
     );
 
-    if (data.status === 200) return await data.text();
+    if (data.status === 200) {
+      if (isArrayBuffer) {
+        return await data.arrayBuffer();
+      } else {
+        return await data.text();
+      }
+    }
 
     const errorInfo = (await data.json()) as any;
 
@@ -29,12 +35,14 @@ export const BEE_ASST_STORAGE_GET = async (keyName: string) => {
   }
 
   const BEE_ASST_STORAGE = process.env.BEE_ASST_STORAGE as unknown as KVNamespace;
-  const data = await BEE_ASST_STORAGE.get(keyName);
-
-  return data;
+  if (isArrayBuffer) {
+    return await BEE_ASST_STORAGE.get(keyName, { type: 'arrayBuffer' });
+  } else {
+    return await BEE_ASST_STORAGE.get(keyName);
+  }
 };
 
-export const BEE_ASST_STORAGE_PUT = async (keyName: string, data: string) => {
+export const BEE_ASST_STORAGE_PUT = async (keyName: string, data: string | ArrayBuffer) => {
   if (isAPI) {
     const options = {
       method: 'PUT',

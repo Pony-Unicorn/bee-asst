@@ -70,7 +70,6 @@ yarn dev
 
 ## Think
 
-- 压缩字符串方案
 - 标签和组合标签的顺序
 - 分享 /share?u=user-unique&combo_tag=id1,id2,id3
   -
