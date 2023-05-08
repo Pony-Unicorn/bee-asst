@@ -1,16 +1,32 @@
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useState } from 'react';
 import clsx from 'clsx';
+import { shallow } from 'zustand/shallow';
+
+import { ComboTag, useBookmarkStore } from '@/store/bookmark';
 
 export type IProps = {
   isOpen: boolean;
-  id: number;
-  name: string;
+  id: string;
+  info: ComboTag;
   cancel: () => void;
   ok: () => void;
-  del: (id: number) => void;
+  del: (id: string) => void;
 };
 
-const EditComboTagDialog: FC<IProps> = ({ isOpen, id, name, cancel, ok, del }) => {
+const EditComboTagDialog: FC<IProps> = ({ isOpen, info, id, cancel, ok, del }) => {
+  const { tagSet } = useBookmarkStore(
+    (state) => ({
+      tagSet: state.tagSet,
+    }),
+    shallow
+  );
+
+  const [isPubChecked, setIsPubChecked] = useState(info.isPub);
+
+  const isPubCheckboxHandleChange = () => {
+    setIsPubChecked(!isPubChecked);
+  };
+
   useEffect(() => {
     console.log('EditTagViewDialog Mounted...');
   }, []);
@@ -22,8 +38,19 @@ const EditComboTagDialog: FC<IProps> = ({ isOpen, id, name, cancel, ok, del }) =
         <div className="form-control">
           <label className="input-group">
             <span>名字</span>
-            <input type="text" placeholder={name} className="input input-bordered" disabled />
+            <input
+              type="text"
+              placeholder={info.tags.map((tagId) => tagSet[tagId]).join(':')}
+              className="input input-bordered"
+              disabled
+            />
           </label>
+          <div className="form-control">
+            <label className="label cursor-pointer">
+              <span className="label-text">是否公开</span>
+              <input type="checkbox" className="toggle" onChange={isPubCheckboxHandleChange} checked={isPubChecked} />
+            </label>
+          </div>
         </div>
         <div className="modal-action">
           <button className="btn" onClick={() => del(id)}>

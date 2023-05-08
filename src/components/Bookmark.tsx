@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import clsx from 'clsx';
 
-import { useBookmarkStore, IBookmarkItem } from '@/store/bookmark';
+import { useBookmarkStore } from '@/store/bookmark';
 import TagBtn from '@/components/TagBtn';
 import ComboTagBtn from '@/components/ComboTagBtn';
 import BookmarkItem from '@/components/BookmarkItem';
@@ -26,9 +26,9 @@ const Bookmark: FC = () => {
   const [addTagDialogOpen, setAddTagDialogOpen] = useState(false); // 添加标签面板的是否打开
   const [addBookmarkDialogOpen, setAddBookmarkDialogOpen] = useState(false); // 添加书签面板的是否打开
 
-  const [editTagViewDialog, setEditTagViewDialog] = useImmer({ isOpen: false, id: -1 }); // 编辑标签视图数据
+  const [editComboTagDialog, setEditComboTagDialog] = useImmer({ isOpen: false, id: '' }); // 编辑组合标签数据
   const [editTagDialog, setEditTagDialog] = useImmer({ isOpen: false, id: '' }); // 编辑标签数据
-  const [editBookmarkItemDialog, setEditBookmarkItemDialog] = useImmer({ isOpen: false, id: '' }); // 编辑标签数据
+  const [editBookmarkItemDialog, setEditBookmarkItemDialog] = useImmer({ isOpen: false, id: '' }); // 编辑书签数据
 
   const [isSynching, setSynching] = useState(false);
 
@@ -50,13 +50,13 @@ const Bookmark: FC = () => {
     changeState,
   } = useBookmarkStore(
     (state) => ({
+      tagSet: state.tagSet,
       addTag: state.addTag,
       rmTag: state.rmTag,
       editTag: state.editTag,
-      tagSet: state.tagSet,
+      comboTagSet: state.comboTagSet,
       addComboTag: state.addComboTag,
       rmComboTag: state.rmComboTag,
-      comboTagSet: state.comboTagSet,
       bookmarkItems: state.items,
       addBookmarkItem: state.addItem,
       editBookmarkItem: state.editItem,
@@ -69,17 +69,17 @@ const Bookmark: FC = () => {
     shallow
   );
 
-  // 等于 tagViews.length 没有任何选中, 为下次添加做准备.其他代表在 comboTagSet 中的索引
-  const tagViewSelectIndex = useMemo(() => {
-    for (let i = 0, l = comboTagSet.length; i < l; i++) {
+  // 返回值为 null 代表没有任何选中
+  const comboTagSetSelectId = useMemo(() => {
+    for (const key in comboTagSet) {
       if (
-        tagSelectList.length === comboTagSet[i].length &&
-        tagSelectList.every((tagId, tagIdIndex) => tagId === comboTagSet[i][tagIdIndex])
-      ) {
-        return i;
-      }
+        tagSelectList.length === comboTagSet[key].tags.length &&
+        tagSelectList.every((tagId, tagIdIndex) => tagId === comboTagSet[key].tags[tagIdIndex])
+      )
+        return key;
     }
-    return comboTagSet.length;
+
+    return null;
   }, [tagSelectList, comboTagSet]);
 
   const loadBookmark = async () => {
@@ -101,12 +101,6 @@ const Bookmark: FC = () => {
 
       if (jsonData.data) {
         const bookmark = JSON.parse(jsonData.data.bookmark);
-        bookmark.comboTagSet = bookmark.comboTagSet.map((comboTag: number[]) => comboTag.map((tag) => String(tag)));
-        bookmark.items = (bookmark.items as IBookmarkItem[]).reduce((pre, cur) => {
-          pre[cur.i] = cur;
-          return pre;
-        }, {} as Record<string, IBookmarkItem>);
-        console.log(bookmark);
         initData(bookmark, { lastReadTime: jsonData.data.readTime });
       }
       changeState('success');
@@ -153,13 +147,13 @@ const Bookmark: FC = () => {
     window.open(bookmarkItems[id].u, '_blank');
   };
 
-  const onClickComboTagBtn = (id: number) => {
+  const onClickComboTagBtn = (id: string) => {
     if (isEdit) {
       console.log('编辑>>>', id);
-      setEditTagViewDialog({ isOpen: true, id });
+      setEditComboTagDialog({ isOpen: true, id });
       return;
     }
-    updateTagSelectList(comboTagSet[id]);
+    updateTagSelectList(comboTagSet[id].tags);
   };
 
   const autoSynching = async () => {
@@ -167,8 +161,8 @@ const Bookmark: FC = () => {
     try {
       await saveBookmark();
     } catch (err) {
-      console.log(err);
-      await loadBookmark();
+      console.error(err);
+      await loadBookmark(); // 可能数据冲突，重新获取数据
     }
     setSynching(false);
   };
@@ -193,14 +187,13 @@ const Bookmark: FC = () => {
             <div className="h-8 w-8"></div>
             <div className="flex flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-col items-center overflow-y-auto">
-                {comboTagSet.map((view, index) => {
-                  const viewName = view.map((tagId) => tagSet[tagId]).join(':');
+                {Object.keys(comboTagSet).map((key) => {
                   return (
                     <ComboTagBtn
-                      key={view.join(':')}
-                      id={index}
-                      comboTagName={viewName}
-                      condition={tagViewSelectIndex === index ? 1 : 0}
+                      key={key}
+                      id={key}
+                      comboTagName={comboTagSet[key].tags.map((tagId) => tagSet[tagId]).join(':')}
+                      condition={comboTagSetSelectId === key ? 1 : 0}
                       action={onClickComboTagBtn}
                     />
                   );
@@ -242,10 +235,8 @@ const Bookmark: FC = () => {
               <button
                 className="btn btn-sm"
                 onClick={() => {
-                  if (tagViewSelectIndex === comboTagSet.length) {
-                    addComboTag(tagSelectList);
-                    autoSynching();
-                  }
+                  addComboTag(tagSelectList);
+                  autoSynching();
                 }}
               >
                 保存
@@ -305,24 +296,25 @@ const Bookmark: FC = () => {
         )}
 
         {/* 编辑组合标签弹窗 */}
-        {editTagViewDialog.isOpen && (
+        {editComboTagDialog.isOpen && (
           <EditComboTagDialog
-            id={editTagViewDialog.id}
-            name={comboTagSet[editTagViewDialog.id].map((tagId) => tagSet[tagId]).join(':')}
-            isOpen={editTagViewDialog.isOpen}
+            id={editComboTagDialog.id}
+            isOpen={editComboTagDialog.isOpen}
+            info={comboTagSet[editComboTagDialog.id]}
             ok={() => {
-              setEditTagViewDialog({ isOpen: false, id: -1 });
+              setEditComboTagDialog({ isOpen: false, id: '' });
             }}
             cancel={() => {
-              setEditTagViewDialog({ isOpen: false, id: -1 });
+              setEditComboTagDialog({ isOpen: false, id: '' });
             }}
             del={(id) => {
               rmComboTag(id);
               autoSynching();
-              setEditTagViewDialog({ isOpen: false, id: -1 });
+              setEditComboTagDialog({ isOpen: false, id: '' });
             }}
           />
         )}
+
         {/* 编辑标签弹窗 */}
         {editTagDialog.isOpen && (
           <EditTagDialog
@@ -338,8 +330,7 @@ const Bookmark: FC = () => {
               setEditTagDialog({ isOpen: false, id: '' });
             }}
             del={(id) => {
-              rmTag(id);
-              autoSynching();
+              if (rmTag(id)) autoSynching();
               setEditTagDialog({ isOpen: false, id: '' });
             }}
           />

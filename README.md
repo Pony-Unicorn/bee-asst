@@ -57,12 +57,17 @@ yarn dev
   - 自动获取网页标题
 - 整理最佳实践
 
-## Think
+## 特点
 
 - 互联网的第一课书签
 - 书签分为三部分：单标签，组合标签，视图
+
+## Think
+
+- 压缩字符串方案
+- 添加 og 开放协议
 - 分享 /share?u=user-unique&combo_tag=id1,id2,id3
-- bookmark:share:user-unique=[0,2,4]
+  -
 
 ## 感谢
 

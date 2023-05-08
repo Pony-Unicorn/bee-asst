@@ -65,7 +65,6 @@ const getBookmark = async (userUnique: string) => {
 // 保存书签 post
 const saveBookmark = async (userUnique: string, data: ISubmitData) => {
   const bookmark = await BEE_ASST_STORAGE_GET(`bookmark:${userUnique}`);
-
   const bookmarkData = JSON.parse(bookmark!);
 
   if (data.lastReadTime < bookmarkData.metadata.lastUpdateTime) {

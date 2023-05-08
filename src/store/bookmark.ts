@@ -4,6 +4,8 @@ import depthClone from 'ramda/src/clone';
 import axios from 'axios';
 
 import apiRouteMap from '@/constants/apiRouteMap';
+import { genUUID } from '@/utils/common';
+
 // import JSZip from 'jszip';
 
 export type ItemPrimaryKey = string; // 只包含数字的字符串，例如 12、232、1
@@ -12,12 +14,14 @@ export interface IBookmarkItem {
   i: ItemPrimaryKey;
   n: string; // 名字
   u: string; // url
-  t: ItemPrimaryKey[]; // 标签 ["1","3","7"] // 存储时转换成 number [1,3,7]
+  t: ItemPrimaryKey[]; // 标签 ["1","3","7"]
   ut: number; // 更新时间，秒
   ct: number; // 创建时间，秒
 }
 
 export type MustBookmarkItem = Pick<IBookmarkItem, 'n' | 'u' | 't'>;
+
+export type ComboTag = { isPub: boolean; tags: ItemPrimaryKey[] };
 
 export interface IExtraState {
   state: 'empty' | 'loading' | 'success' | 'fail';
@@ -27,8 +31,8 @@ export interface IExtraState {
 export interface IBookmarkStorageState {
   metadata: { version: string; inc: number; lastUpdateTime: number }; // lastUpdateTime: 单位为妙
   tagSet: Record<ItemPrimaryKey, string>; // {1:"通用",2:"媒体",3:"博客",4:"工具",5:"新闻",6:"区块链",7:"前端",8:"后端",9:"框架",10:"游戏"}
-  comboTagSet: ItemPrimaryKey[][]; // [[1,2,4],[4,6,8,9]] crate // 存储时转换成 number, 排序方式按照 id 正序
-  items: Record<ItemPrimaryKey, IBookmarkItem>; // 存储转成数组存储 IBookmarkItem[]
+  comboTagSet: Record<string, ComboTag>; // 排序方式按照 id 转成数字正序 {id:{isPub: false,tags: [4,6,8,9]}}
+  items: Record<ItemPrimaryKey, IBookmarkItem>;
 }
 
 export interface IBookmarkAction {
@@ -36,10 +40,10 @@ export interface IBookmarkAction {
   initData: (data: IBookmarkStorageState, extraState: Pick<IExtraState, 'lastReadTime'>) => void;
   save: () => Promise<void>;
   addTag: (newTag: string) => void;
-  rmTag: (tagId: ItemPrimaryKey) => void;
-  editTag: (tagId: ItemPrimaryKey, newTag: string) => void;
+  rmTag: (tagId: ItemPrimaryKey) => boolean;
+  editTag: (tagId: ItemPrimaryKey, newTag: string) => boolean;
   addComboTag: (tagIds: ItemPrimaryKey[]) => void;
-  rmComboTag: (comboTagSetIndex: number) => void;
+  rmComboTag: (comboTag: string) => void;
   addItem: (item: MustBookmarkItem) => void;
   rmItem: (itemId: ItemPrimaryKey) => void;
   editItem: (itemId: ItemPrimaryKey, newItem: MustBookmarkItem) => void;
@@ -52,7 +56,7 @@ export const useBookmarkStore = create(
     state: 'empty',
     lastReadTime: 0,
     metadata: { version: '0.0.0', inc: 0, lastUpdateTime: 0 },
-    comboTagSet: [],
+    comboTagSet: {},
     items: {},
     tagSet: {},
     changeState: (state: IExtraState['state']) => {
@@ -71,8 +75,8 @@ export const useBookmarkStore = create(
       const store = get();
       const cloudStore = {
         metadata: depthClone(store.metadata),
-        comboTagSet: depthClone(store.comboTagSet.map((comboTag) => comboTag.map((tag) => Number(tag)))),
-        items: depthClone(Object.values(store.items)),
+        comboTagSet: depthClone(store.comboTagSet),
+        items: depthClone(store.items),
         tagSet: depthClone(store.tagSet),
       };
 
@@ -97,33 +101,30 @@ export const useBookmarkStore = create(
       });
     },
     rmTag: (tagId: ItemPrimaryKey) => {
+      if (Object.values(get().comboTagSet).some((comboTag) => comboTag.tags.includes(tagId))) return false;
+      if (Object.values(get().items).some((item) => item.t.includes(tagId))) return false;
+
       set((store) => {
-        store.comboTagSet = Array.from(
-          new Set(
-            store.comboTagSet
-              .map((subArr) => subArr.filter((num) => num !== tagId))
-              .filter((subArr) => subArr.length > 0)
-              .map((v) => v.join(':'))
-          )
-        ).map((v) => v.split(':'));
-        Object.values(store.items).forEach((item) => (item.t = item.t.filter((num) => num !== tagId)));
         delete store.tagSet[tagId];
       });
+
+      return true;
     },
     editTag: (tagId: ItemPrimaryKey, newTag: string) => {
-      if (Object.values(get().tagSet).includes(newTag)) return; // 禁止名字相同
+      if (Object.values(get().tagSet).includes(newTag)) return false; // 禁止名字相同
       set((store) => {
         store.tagSet[tagId] = newTag;
       });
+      return true;
     },
     addComboTag: (tagIds: ItemPrimaryKey[]) => {
       set((store) => {
-        store.comboTagSet.push(tagIds);
+        store.comboTagSet[genUUID()] = { isPub: false, tags: tagIds };
       });
     },
-    rmComboTag: (viewIndex: number) => {
+    rmComboTag: (comboTag: string) => {
       set((store) => {
-        store.comboTagSet.splice(viewIndex, 1);
+        delete store.comboTagSet[comboTag];
       });
     },
     addItem: (item: MustBookmarkItem) => {

@@ -2,7 +2,7 @@ import { FC, ChangeEvent, useEffect } from 'react';
 import clsx from 'clsx';
 import { useImmer } from 'use-immer';
 import TagBtn from '@/components/TagBtn';
-import { IBookmarkItem, MustBookmarkItem, useBookmarkStore } from '../store/bookmark';
+import { IBookmarkItem, MustBookmarkItem, useBookmarkStore } from '@/store/bookmark';
 import { shallow } from 'zustand/shallow';
 
 export type IProps = {
