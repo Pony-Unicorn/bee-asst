@@ -8,6 +8,14 @@ export const config = {
   runtime: 'edge',
 };
 
+const bookmarkDefault = {
+  metadata: { version: '0.0.0', inc: 0, lastUpdateTime: 0 },
+  comboTagSet: {},
+  tagSetOrder: [],
+  items: {},
+  tagSet: {},
+};
+
 type ISubmitData = { bookmark: string; lastReadTime: number };
 
 export default async function handler(req: NextRequest) {
@@ -50,7 +58,7 @@ const getBookmark = async (userUnique: string) => {
     JSON.stringify({
       code: 0,
       data: {
-        bookmark: pako.ungzip(bookmark as ArrayBuffer, { to: 'string' }),
+        bookmark: bookmark ? pako.ungzip(bookmark as ArrayBuffer, { to: 'string' }) : bookmarkDefault,
         readTime: Date.now(),
       },
       msg: 'Success',

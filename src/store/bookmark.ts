@@ -66,9 +66,9 @@ export const useBookmarkStore = create(
       set((store) => {
         store.metadata = data.metadata;
         store.comboTagSet = data.comboTagSet;
+        store.tagSetOrder = data.tagSetOrder;
         store.items = data.items;
         store.tagSet = data.tagSet;
-        store.tagSetOrder = data.tagSetOrder;
         store.lastReadTime = extraState.lastReadTime;
       });
     },
