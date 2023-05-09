@@ -7,6 +7,8 @@ import Notes from '@/components/Notes';
 import Kanban from '@/components/Kanban';
 import Bookmark from '@/components/Bookmark';
 
+import pkg from '../../package.json';
+
 const inter = Inter({ subsets: ['latin'] });
 
 const Home: FC = () => {
@@ -48,8 +50,22 @@ const Home: FC = () => {
             </div>
           </div>
           <div className="">
-            <div className="bg-secondary rounded-full">
-              <p>My</p>
+            <div className="dropdown dropdown-end">
+              <label tabIndex={0} className="avatar">
+                <div className="w-8 rounded-full bg-primary">
+                  <div className="flex justify-center items-center">
+                    <span>My</span>
+                  </div>
+                </div>
+              </label>
+              <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                <li>
+                  <a>Version {pkg.version}</a>
+                </li>
+                <li>
+                  <a>期待更多...</a>
+                </li>
+              </ul>
             </div>
           </div>
         </header>

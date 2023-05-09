@@ -4,6 +4,7 @@ import { shallow } from 'zustand/shallow';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import clsx from 'clsx';
+import useLocalStorage from 'react-use/lib/useLocalStorage';
 
 import { useBookmarkStore } from '@/store/bookmark';
 import TagBtn from '@/components/TagBtn';
@@ -21,7 +22,7 @@ const Bookmark: FC = () => {
 
   const [isEdit, setEdit] = useState(false); // false: 正常状态, true: 编辑状态
 
-  const [tagSelectList, updateTagSelectList] = useImmer<string[]>([]); // 选中的 tag 列表
+  const [tagSelectList, updateTagSelectList] = useLocalStorage<string[]>('bee-asst-tag-select-list', []); // 选中的 tag 列表
 
   const [addTagDialogOpen, setAddTagDialogOpen] = useState(false); // 添加标签面板的是否打开
   const [addBookmarkDialogOpen, setAddBookmarkDialogOpen] = useState(false); // 添加书签面板的是否打开
@@ -75,8 +76,8 @@ const Bookmark: FC = () => {
   const comboTagSetSelectId = useMemo(() => {
     for (const key in comboTagSet) {
       if (
-        tagSelectList.length === comboTagSet[key].tags.length &&
-        tagSelectList.every((tagId, tagIdIndex) => tagId === comboTagSet[key].tags[tagIdIndex])
+        tagSelectList!.length === comboTagSet[key].tags.length &&
+        tagSelectList!.every((tagId, tagIdIndex) => tagId === comboTagSet[key].tags[tagIdIndex])
       )
         return key;
     }
@@ -102,8 +103,7 @@ const Bookmark: FC = () => {
         .then((res) => res.data);
 
       if (jsonData.data) {
-        const bookmark = JSON.parse(jsonData.data.bookmark);
-        initData(bookmark, { lastReadTime: jsonData.data.readTime });
+        initData(jsonData.data.bookmark, { lastReadTime: jsonData.data.readTime });
       }
       changeState('success');
     } catch (err) {
@@ -123,10 +123,10 @@ const Bookmark: FC = () => {
       return;
     }
 
-    if (tagSelectList.includes(tagId)) {
-      updateTagSelectList(tagSelectList.filter((id) => id != tagId));
+    if (tagSelectList!.includes(tagId)) {
+      updateTagSelectList(tagSelectList!.filter((id) => id != tagId));
     } else {
-      updateTagSelectList([...tagSelectList, tagId].sort((a, b) => Number(a) - Number(b)));
+      updateTagSelectList([...tagSelectList!, tagId].sort((a, b) => Number(a) - Number(b)));
     }
   };
 
@@ -220,7 +220,7 @@ const Bookmark: FC = () => {
             <div className="flex flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-wrap content-start overflow-y-auto overflow-x-hidden">
                 {Object.values(bookmarkItems)
-                  .filter((bookmarkItem) => tagSelectList.every((tagSelectId) => bookmarkItem.t.includes(tagSelectId)))
+                  .filter((bookmarkItem) => tagSelectList!.every((tagSelectId) => bookmarkItem.t.includes(tagSelectId)))
                   .map((bookmarkItem) => (
                     <BookmarkItem key={bookmarkItem.i} item={bookmarkItem} action={onClickBookmarkItem} />
                   ))}
@@ -234,11 +234,16 @@ const Bookmark: FC = () => {
               <button className="btn btn-sm" onClick={() => setAddTagDialogOpen(true)}>
                 新建
               </button>
+
               <button
                 className="btn btn-sm"
                 onClick={() => {
-                  addComboTag(tagSelectList);
-                  autoSynching();
+                  if (tagSelectList && tagSelectList.length > 0) {
+                    addComboTag(tagSelectList!);
+                    autoSynching();
+                  } else {
+                    console.log('添加失败，没有选择标签');
+                  }
                 }}
               >
                 保存
@@ -256,7 +261,7 @@ const Bookmark: FC = () => {
                     key={id}
                     id={id}
                     name={tagSet[id]}
-                    condition={tagSelectList.some((tag) => tag == id) ? 1 : 0}
+                    condition={tagSelectList!.some((tag) => tag == id) ? 1 : 0}
                     action={tagBtnHandle}
                   />
                 ))}

@@ -58,7 +58,7 @@ const getBookmark = async (userUnique: string) => {
     JSON.stringify({
       code: 0,
       data: {
-        bookmark: bookmark ? pako.ungzip(bookmark as ArrayBuffer, { to: 'string' }) : bookmarkDefault,
+        bookmark: bookmark ? JSON.parse(pako.ungzip(bookmark as ArrayBuffer, { to: 'string' })) : bookmarkDefault,
         readTime: Date.now(),
       },
       msg: 'Success',
