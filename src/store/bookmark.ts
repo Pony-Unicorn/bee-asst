@@ -101,7 +101,7 @@ export const useBookmarkStore = create(
 
       set((store) => {
         store.tagSet[++store.metadata.inc] = newTag;
-        store.tagSetOrder.push(String(store.metadata.inc));
+        store.tagSetOrder.unshift(String(store.metadata.inc));
       });
 
       return true;
