@@ -1,12 +1,11 @@
 import { FC, useState, ChangeEvent, useEffect } from 'react';
 import clsx from 'clsx';
-
 import { shallow } from 'zustand/shallow';
 import { useImmer } from 'use-immer';
+import { isUrl } from '@/utils/common';
 
 import TagBtn from '@/components/TagBtn';
-
-import { MustBookmarkItem, useBookmarkStore } from '../store/bookmark';
+import { MustBookmarkItem, useBookmarkStore } from '@/store/bookmark';
 
 export type IProps = {
   isOpen: boolean;
@@ -94,8 +93,8 @@ const AddBookmarkDialog: FC<IProps> = ({ isOpen, cancel, ok }) => {
           <button
             className="btn"
             onClick={() => {
-              // 目前仅简单校验，后期严格校验、例如： URL 合不合法、
-              if (name === '' || url === '' || tagSelectList.length === 0) return;
+              if (!isUrl(url)) return;
+              if (name === '' || tagSelectList.length === 0) return;
               ok({ n: name, u: url, t: tagSelectList });
             }}
           >
