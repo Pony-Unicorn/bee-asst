@@ -57,16 +57,6 @@ const EditBookmarkItemDialog: FC<IProps> = ({ isOpen, info, cancel, ok, del }) =
         <h3 className="font-bold text-lg">编辑书签</h3>
         <div className="form-control">
           <label className="input-group">
-            <span>名字</span>
-            <input
-              type="text"
-              placeholder=""
-              className="input input-bordered"
-              value={bookmarkItem.n}
-              onChange={nameInputChange}
-            />
-          </label>
-          <label className="input-group">
             <span>网址</span>
             <input
               type="text"
@@ -74,6 +64,16 @@ const EditBookmarkItemDialog: FC<IProps> = ({ isOpen, info, cancel, ok, del }) =
               className="input input-bordered"
               value={bookmarkItem.u}
               onChange={urlInputChange}
+            />
+          </label>
+          <label className="input-group">
+            <span>名字</span>
+            <input
+              type="text"
+              placeholder=""
+              className="input input-bordered"
+              value={bookmarkItem.n}
+              onChange={nameInputChange}
             />
           </label>
         </div>
