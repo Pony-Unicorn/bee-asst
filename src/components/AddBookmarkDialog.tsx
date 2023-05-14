@@ -51,19 +51,19 @@ const AddBookmarkDialog: FC<IProps> = ({ isOpen, cancel, ok }) => {
         <h3 className="font-bold text-lg">添加书签</h3>
         <div className="form-control">
           <label className="input-group">
-            <span>名字</span>
-            <input type="text" placeholder="" className="input input-bordered" value={name} onChange={tagNameInputChange} />
-          </label>
-          <label className="input-group">
             <span>网址</span>
             <input type="text" placeholder="" className="input input-bordered" value={url} onChange={tagUrlInputChange} />
+          </label>
+          <label className="input-group">
+            <span>名字</span>
+            <input type="text" placeholder="" className="input input-bordered" value={name} onChange={tagNameInputChange} />
           </label>
         </div>
         <div className="flex">
           <p>已有书签分类</p>
           <div className="tooltip tooltip-open tooltip-right" data-tip="tag 规则">
             {/* <span>❔</span> */}
-            
+
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
