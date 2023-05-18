@@ -41,11 +41,11 @@ export interface IBookmarkAction {
   addTag: (newTag: string) => boolean;
   rmTag: (tagId: ItemPrimaryKey) => boolean;
   editTag: (tagId: ItemPrimaryKey, newTag: string) => boolean;
-  addComboTag: (tagIds: ItemPrimaryKey[]) => void;
+  addComboTag: (tagIds: ItemPrimaryKey[]) => boolean;
   rmComboTag: (comboTag: string) => void;
-  addItem: (item: MustBookmarkItem) => void;
+  addItem: (item: MustBookmarkItem) => boolean;
   rmItem: (itemId: ItemPrimaryKey) => void;
-  editItem: (itemId: ItemPrimaryKey, newItem: MustBookmarkItem) => void;
+  editItem: (itemId: ItemPrimaryKey, newItem: MustBookmarkItem) => boolean;
 }
 
 type IBookmarkState = IExtraState & IBookmarkStorageState & IBookmarkAction;
@@ -125,9 +125,14 @@ export const useBookmarkStore = create(
       return true;
     },
     addComboTag: (tagIds: ItemPrimaryKey[]) => {
+      const tagIdsOnly = tagIds.join(':');
+      if (Object.values(get().comboTagSet).some((comboTag) => comboTag.tags.join(':') === tagIdsOnly)) return false;
+
       set((store) => {
         store.comboTagSet[genUUID()] = { isPub: false, tags: tagIds };
       });
+
+      return true;
     },
     rmComboTag: (comboTag: string) => {
       set((store) => {
@@ -135,6 +140,8 @@ export const useBookmarkStore = create(
       });
     },
     addItem: (item: MustBookmarkItem) => {
+      if (Object.values(get().items).some((value) => value.u === item.u)) return false; // 禁止 URL 相同
+
       const now = Date.now();
       set((store) => {
         store.items[++store.metadata.inc] = {
@@ -146,6 +153,8 @@ export const useBookmarkStore = create(
           ct: now,
         };
       });
+
+      return true;
     },
     rmItem: (itemId: ItemPrimaryKey) => {
       set((store) => {
@@ -153,6 +162,8 @@ export const useBookmarkStore = create(
       });
     },
     editItem: (itemId: ItemPrimaryKey, newItem: MustBookmarkItem) => {
+      if (get().items[itemId].u !== newItem.u) return false; // URL 不允许更改、必须相同
+
       set((store) => {
         store.items[itemId] = {
           ...store.items[itemId],
@@ -162,6 +173,8 @@ export const useBookmarkStore = create(
           ut: Date.now(),
         };
       });
+
+      return true;
     },
   }))
 );

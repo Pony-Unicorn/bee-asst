@@ -1,8 +1,6 @@
 import type { FC } from 'react';
 import clsx from 'clsx';
 
-import TagBtn from '@/components/TagBtn';
-
 export type IProps = {
   id: string;
   comboTagName: string;
@@ -12,20 +10,13 @@ export type IProps = {
 
 const ComboTagBtn: FC<IProps> = ({ id, comboTagName, condition, action }) => {
   return (
-    <TagBtn
-      id={String(id)}
-      name={comboTagName}
-      condition={condition}
-      action={(id) => {
-        action(id);
-      }}
-    />
-  );
-  return (
-    <div className="m-2">
-      <div className={clsx('btn btn-primary btn-xs', condition !== 1 && 'btn-outline')} onClick={() => action(id)}>
+    <div className="m-1">
+      <button
+        className={clsx('btn btn-primary btn-sm normal-case p-0.5 truncate', condition !== 1 && 'btn-outline')}
+        onClick={() => action(id)}
+      >
         {comboTagName}
-      </div>
+      </button>
     </div>
   );
 };

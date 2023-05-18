@@ -131,7 +131,7 @@ const Bookmark: FC = () => {
   };
 
   const editBtnHandle = () => {
-    updateTagSelectList([]);
+    // updateTagSelectList([]);
     setEdit(!isEdit);
   };
 
@@ -172,7 +172,7 @@ const Bookmark: FC = () => {
   // border-2 border-red-500
   return (
     <>
-      <div className="flex flex-col justify-center w-full max-w-screen-2xl py-4 mx-auto">
+      <div className="flex flex-col justify-center w-full max-w-screen-xl py-4 mx-auto">
         <div className="flex">
           <button className="btn" onClick={editBtnHandle}>
             {isEdit ? '取消' : '编辑'}
@@ -184,9 +184,73 @@ const Bookmark: FC = () => {
         </div>
 
         <div className="flex flex-grow mt-4">
+          {/* 标签列表 */}
+          <div className="flex flex-col flex-none w-80 rounded-2xl border bg-base-300">
+            <div className="flex p-1 justify-between items-center">
+              <div className="flex">
+                <button className="btn btn-sm" onClick={() => setAddTagDialogOpen(true)}>
+                  新建
+                </button>
+
+                <button className={clsx('btn btn-sm', isSynching && 'loading')} onClick={autoSynching}>
+                  同步
+                </button>
+              </div>
+              <button
+                className="btn btn-xs"
+                onClick={() => {
+                  if (tagSelectList && tagSelectList.length > 0 && addComboTag(tagSelectList!)) {
+                    autoSynching();
+                  } else {
+                    console.log('添加失败，没有选择标签');
+                  }
+                }}
+              >
+                ➡
+              </button>
+              <span>组合标签</span>
+            </div>
+
+            <div className="flex flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
+              <div className="flex flex-col w-48">
+                <div className="flex flex-wrap overflow-y-auto">
+                  {tagSetOrder.map((id) => (
+                    <TagBtn
+                      key={id}
+                      id={id}
+                      name={tagSet[id]}
+                      condition={tagSelectList!.some((tag) => tag == id) ? 1 : 0}
+                      action={tagBtnHandle}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="divider divider-horizontal mx-0"></div>
+
+              <div className="flex">
+                <div className="flex flex-col items-center overflow-y-auto">
+                  {Object.keys(comboTagSet).map((key) => {
+                    return (
+                      <ComboTagBtn
+                        key={key}
+                        id={key}
+                        comboTagName={comboTagSet[key].tags.map((tagId) => tagSet[tagId]).join(':')}
+                        condition={comboTagSetSelectId === key ? 1 : 0}
+                        action={onClickComboTagBtn}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* 组合 tag 列表 */}
-          <div className="flex flex-col flex-none w-48 rounded-2xl border bg-base-300">
-            <div className="h-8 w-8"></div>
+          {/* <div className="flex flex-col flex-none w-40 rounded-2xl border bg-base-300">
+            <div className="h-8">
+              <span>组合标签</span>
+            </div>
             <div className="flex justify-center flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-col items-center overflow-y-auto">
                 {Object.keys(comboTagSet).map((key) => {
@@ -202,7 +266,7 @@ const Bookmark: FC = () => {
                 })}
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* 书签列表 */}
           <div className="flex flex-col flex-1 mx-2 rounded-2xl border bg-base-300">
@@ -227,47 +291,6 @@ const Bookmark: FC = () => {
               </div>
             </div>
           </div>
-
-          {/* 标签列表 */}
-          <div className="flex flex-col flex-none w-48 rounded-2xl border bg-base-300">
-            <div className="flex p-1">
-              <button className="btn btn-sm" onClick={() => setAddTagDialogOpen(true)}>
-                新建
-              </button>
-
-              <button
-                className="btn btn-sm"
-                onClick={() => {
-                  if (tagSelectList && tagSelectList.length > 0) {
-                    addComboTag(tagSelectList!);
-                    autoSynching();
-                  } else {
-                    console.log('添加失败，没有选择标签');
-                  }
-                }}
-              >
-                保存
-              </button>
-
-              <button className={clsx('btn btn-sm', isSynching && 'loading')} onClick={autoSynching}>
-                同步
-              </button>
-            </div>
-
-            <div className="flex flex-col flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
-              <div className="flex flex-wrap overflow-y-auto">
-                {tagSetOrder.map((id) => (
-                  <TagBtn
-                    key={id}
-                    id={id}
-                    name={tagSet[id]}
-                    condition={tagSelectList!.some((tag) => tag == id) ? 1 : 0}
-                    action={tagBtnHandle}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -278,9 +301,10 @@ const Bookmark: FC = () => {
           <AddBookmarkDialog
             isOpen={addBookmarkDialogOpen}
             ok={(item) => {
-              addBookmarkItem(item);
-              autoSynching();
-              setAddBookmarkDialogOpen(false);
+              if (addBookmarkItem(item)) {
+                autoSynching();
+                setAddBookmarkDialogOpen(false);
+              }
             }}
             cancel={() => {
               setAddBookmarkDialogOpen(false);
@@ -350,9 +374,10 @@ const Bookmark: FC = () => {
             isOpen={editBookmarkItemDialog.isOpen}
             info={bookmarkItems[editBookmarkItemDialog.id]}
             ok={(id, item) => {
-              editBookmarkItem(id, item);
-              autoSynching();
-              setEditBookmarkItemDialog({ isOpen: false, id: '' });
+              if (editBookmarkItem(id, item)) {
+                autoSynching();
+                setEditBookmarkItemDialog({ isOpen: false, id: '' });
+              }
             }}
             cancel={() => {
               setEditBookmarkItemDialog({ isOpen: false, id: '' });

@@ -10,9 +10,9 @@ export type IProps = {
 
 const TagBtn: FC<IProps> = ({ id, name, condition, action }) => {
   return (
-    <div className="m-2">
+    <div className="m-1">
       <button
-        className={clsx('btn btn-primary btn-sm normal-case p-1 overflow-ellipsis', condition !== 1 && 'btn-outline')}
+        className={clsx('btn btn-neutral btn-sm normal-case p-1 overflow-ellipsis', condition !== 1 && 'btn-outline')}
         onClick={() => action(id)}
       >
         {name}
