@@ -146,7 +146,10 @@ const Bookmark: FC = () => {
       setEditBookmarkItemDialog({ isOpen: true, id });
       return;
     }
-    window.open(bookmarkItems[id].u, '_blank');
+
+    const url = new URL(bookmarkItems[id].u);
+    url.searchParams.set('utm_source', 'bee-asst'); // utm_source=bee-asst
+    window.open(url, '_blank');
   };
 
   const onClickComboTagBtn = (id: string) => {
