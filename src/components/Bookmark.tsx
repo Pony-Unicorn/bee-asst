@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import clsx from 'clsx';
 import useLocalStorage from 'react-use/lib/useLocalStorage';
+import useKeyPressEvent from 'react-use/lib/useKeyPressEvent';
 
 import { useBookmarkStore } from '@/store/bookmark';
 import TagBtn from '@/components/TagBtn';
@@ -178,6 +179,24 @@ const Bookmark: FC = () => {
   const searchBookmarkInputChange = (evt: ChangeEvent<HTMLInputElement>): void => {
     setSearchBookmarkValue(evt.target.value);
   };
+
+  const [lastUpEscapeTime, setLastUpEscapeTime] = useState(0); // 最后一次按下 esc 的时间戳
+
+  //========= 快捷键绑定 =========
+  useKeyPressEvent('Escape', () => {
+    if (isEdit) {
+      setEdit(false);
+      return;
+    }
+
+    if (Date.now() - lastUpEscapeTime <= 500) {
+      updateTagSelectList([]);
+      return;
+    }
+
+    setLastUpEscapeTime(Date.now());
+  });
+  //========= 快捷键绑定 =========
 
   return (
     <>

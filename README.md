@@ -39,8 +39,7 @@ yarn dev
   - 功能: 自动获取网页标题
   - 功能: 绑定快捷键
     - 搜索绑定 cmd + k (macOS) or ctrl + k (Linux/Windows)
-    - 弹窗绑定 esc 键
-    - 登陆等、确定绑定回车键
+    - 登录等、确定绑定回车键
   - 功能: 私密书签
   - 功能: 分享 /share?u=user-unique&combo_tag=id1,id2,id3
   - 功能: 添加 og 开放协议
