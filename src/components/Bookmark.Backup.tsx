@@ -1,4 +1,4 @@
-import { FC, useState, useEffect, useMemo, ChangeEvent } from 'react';
+import { FC, useState, useEffect, useMemo } from 'react';
 import { useImmer } from 'use-immer';
 import { shallow } from 'zustand/shallow';
 import axios from 'axios';
@@ -172,16 +172,15 @@ const Bookmark: FC = () => {
     setSynching(false);
   };
 
-  const [searchBookmarkValue, setSearchBookmarkValue] = useState('');
-
-  // 名字和 url 参与搜索
-  const searchBookmarkInputChange = (evt: ChangeEvent<HTMLInputElement>): void => {
-    setSearchBookmarkValue(evt.target.value);
-  };
-
   return (
     <>
       <div className="flex flex-col justify-center w-full max-w-screen-xl py-4 mx-auto">
+        {/* <div className="flex">
+          <button className="btn" onClick={editBtnHandle}>
+            {isEdit ? '取消' : '编辑'}
+          </button>
+        </div> */}
+
         <div className="flex flex-grow my-1">
           {/* 标签列表 */}
           <div className="flex flex-col flex-none w-80 rounded-2xl border bg-base-300">
@@ -249,13 +248,35 @@ const Bookmark: FC = () => {
             </div>
           </div>
 
+          {/* 组合 tag 列表 */}
+          {/* <div className="flex flex-col flex-none w-40 rounded-2xl border bg-base-300">
+            <div className="h-8">
+              <span>组合标签</span>
+            </div>
+            <div className="flex justify-center flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
+              <div className="flex flex-col items-center overflow-y-auto">
+                {Object.keys(comboTagSet).map((key) => {
+                  return (
+                    <ComboTagBtn
+                      key={key}
+                      id={key}
+                      comboTagName={comboTagSet[key].tags.map((tagId) => tagSet[tagId]).join(':')}
+                      condition={comboTagSetSelectId === key ? 1 : 0}
+                      action={onClickComboTagBtn}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </div> */}
+
           {/* 书签列表 */}
           <div className="flex flex-col flex-1 mx-2 rounded-2xl border bg-base-300">
-            <div className="flex items-center p-1">
-              <button className="btn btn-sm" onClick={editBtnHandle}>
+            <div className="flex p-1">
+              <button className="btn" onClick={editBtnHandle}>
                 {isEdit ? '取消' : '编辑'}
               </button>
-
+              
               <button
                 className="btn btn-sm"
                 onClick={() => {
@@ -264,14 +285,7 @@ const Bookmark: FC = () => {
               >
                 新建
               </button>
-
-              <input
-                className="input input-bordered input-info input-sm w-full mx-2 my-1"
-                type="text"
-                placeholder="搜索书签"
-                value={searchBookmarkValue}
-                onChange={searchBookmarkInputChange}
-              />
+              <input className="input input-bordered input-info w-full mx-2 my-1" type="text" placeholder="搜索书签" />
             </div>
 
             <div className="flex flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
