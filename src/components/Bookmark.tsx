@@ -233,7 +233,7 @@ const Bookmark: FC = () => {
               <span>组合标签</span>
             </div>
 
-            <div className="flex flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
+            <div className="flex flex-grow min-h-0 h-0 pt-2 rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-col w-48">
                 <div className="flex flex-wrap overflow-y-auto">
                   {tagSetOrder.map((id) => (
@@ -293,7 +293,7 @@ const Bookmark: FC = () => {
               />
             </div>
 
-            <div className="flex flex-grow min-h-0 h-0 rounded-b-2xl border-t bg-base-200">
+            <div className="flex flex-grow min-h-0 h-0 pt-2 rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-wrap content-start overflow-y-auto overflow-x-hidden">
                 {Object.values(bookmarkItems)
                   .filter((bookmarkItem) => tagSelectList!.every((tagSelectId) => bookmarkItem.t.includes(tagSelectId)))
