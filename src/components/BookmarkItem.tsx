@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 // import clsx from 'clsx';
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard';
 import { Img } from 'react-image';
@@ -6,8 +6,10 @@ import { Img } from 'react-image';
 import { getFavicon } from '../utils/common';
 import { IBookmarkItem } from '../store/bookmark';
 
+import React from 'react';
 export type IProps = {
   item: IBookmarkItem;
+  isEdit: boolean;
   action: (id: string) => void;
 };
 
@@ -32,3 +34,7 @@ const BookmarkItem: FC<IProps> = ({ item, action }) => {
 };
 
 export default BookmarkItem;
+
+const ActionCom: FC<{ children: ReactNode }> = ({ children }) => {
+  return <a href=""></a>;
+};
