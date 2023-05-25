@@ -9,7 +9,7 @@ import { IBookmarkItem } from '../store/bookmark';
 import React from 'react';
 export type IProps = {
   item: IBookmarkItem;
-  isEdit: boolean;
+  // isEdit: boolean;
   action: (id: string) => void;
 };
 

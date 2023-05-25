@@ -18,6 +18,8 @@ const AddBookmarkDialog: FC<IProps> = ({ isOpen, cancel, ok }) => {
   const [url, setUrl] = useState(''); // 书签 URL
   const [tagSelectList, updateTagSelectList] = useImmer<string[]>([]); // 选中的 tag 列表
 
+  const [isSyncTitle, setSyncTitle] = useState(false);
+
   const { tags } = useBookmarkStore(
     (state) => ({
       tags: state.tagSet,
@@ -43,6 +45,8 @@ const AddBookmarkDialog: FC<IProps> = ({ isOpen, cancel, ok }) => {
 
   const syncTitle = () => {
     if (!isUrl(url)) return;
+
+    setSyncTitle(true);
     fetch(`https://bird.ioliu.cn/v1?url=${url}`, {
       method: 'GET',
     })
@@ -56,6 +60,9 @@ const AddBookmarkDialog: FC<IProps> = ({ isOpen, cancel, ok }) => {
       .catch((err) => {
         setName('🥀 同步失败、请手动填写');
         console.error('同步标题失败>>>', err);
+      })
+      .finally(() => {
+        setSyncTitle(false);
       });
   };
 
@@ -79,7 +86,7 @@ const AddBookmarkDialog: FC<IProps> = ({ isOpen, cancel, ok }) => {
               <span>名字</span>
               <input type="text" placeholder="" className="input input-bordered" value={name} onChange={tagNameInputChange} />
             </label>
-            <button className="btn" onClick={syncTitle}>
+            <button className={clsx('btn btn-sm', isSyncTitle && 'loading')} onClick={syncTitle}>
               同步标题
             </button>
           </div>

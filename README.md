@@ -19,6 +19,7 @@ yarn dev
 
 ## 功能
 
+- 小组件的方向发展
 - 支持平台
   - pc 网页、手机网页、pwa、chrome 浏览器插件
 - 玩转 emoji 表情，尽量使用 emoji 表情作为 icon
