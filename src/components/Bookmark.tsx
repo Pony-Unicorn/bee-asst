@@ -295,11 +295,20 @@ const Bookmark: FC = () => {
 
             <div className="flex flex-grow min-h-0 h-0 pt-2 rounded-b-2xl border-t bg-base-200">
               <div className="flex flex-wrap content-start overflow-y-auto overflow-x-hidden">
-                {Object.values(bookmarkItems)
+                {/* {Object.values(bookmarkItems)
                   .filter((bookmarkItem) => tagSelectList!.every((tagSelectId) => bookmarkItem.t.includes(tagSelectId)))
                   .map((bookmarkItem) => (
                     <BookmarkItem key={bookmarkItem.i} item={bookmarkItem} action={onClickBookmarkItem} />
-                  ))}
+                  ))} */}
+
+                {Object.values(bookmarkItems).map((bookmarkItem) => (
+                  <BookmarkItem
+                    key={bookmarkItem.i}
+                    isShow={tagSelectList!.every((tagSelectId) => bookmarkItem.t.includes(tagSelectId))}
+                    item={bookmarkItem}
+                    action={onClickBookmarkItem}
+                  />
+                ))}
               </div>
             </div>
           </div>

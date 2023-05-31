@@ -1,5 +1,5 @@
 import type { FC, ReactNode } from 'react';
-// import clsx from 'clsx';
+import clsx from 'clsx';
 import useCopyToClipboard from 'react-use/lib/useCopyToClipboard';
 import { Img } from 'react-image';
 
@@ -10,14 +10,20 @@ import React from 'react';
 export type IProps = {
   item: IBookmarkItem;
   // isEdit: boolean;
+  isShow: boolean;
   action: (id: string) => void;
 };
 
-const BookmarkItem: FC<IProps> = ({ item, action }) => {
+const BookmarkItem: FC<IProps> = ({ item, isShow, action }) => {
   const [copyState, copyToClipboard] = useCopyToClipboard();
 
   return (
-    <div className="flex items-center h-12 m-1 px-2 rounded-xl border-2 border-neutral hover:bg-neutral-content">
+    <div
+      className={clsx(
+        isShow ? 'flex' : 'hidden',
+        'items-center h-12 m-1 px-2 rounded-xl border-2 border-neutral hover:bg-neutral-content'
+      )}
+    >
       <div className="flex items-center cursor-pointer tooltip tooltip-bottom" data-tip={item.u} onClick={() => action(item.i)}>
         <div className="avatar">
           <div className="w-8 h-8">

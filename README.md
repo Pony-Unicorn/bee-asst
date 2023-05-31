@@ -25,11 +25,13 @@ yarn dev
 - 玩转 emoji 表情，尽量使用 emoji 表情作为 icon
 - 工具 1: 卡片式笔记，简单笔记。参考 flomo
 - 工具 2: 个人任务、个人看板。参考 板栗、或者简化任务
+  - 仿照飞书任务：有列表和看板模式
 - 工具 3: 浏览器书签管理，类似自己的导航页
   - 参考 https://withpinbox.com/explore http://demo.onenav.top/ https://b.lucq.fun/#/tags
 - 工具 4: 其他实用小工具，仔细考虑，或者搭建二级项跳转
   - rss 阅读
   - 文字转成二维码、可加密的
+  - 小组件，热搜等
 
 ## To-do
 
