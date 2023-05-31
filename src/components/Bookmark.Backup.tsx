@@ -293,7 +293,7 @@ const Bookmark: FC = () => {
                 {Object.values(bookmarkItems)
                   .filter((bookmarkItem) => tagSelectList!.every((tagSelectId) => bookmarkItem.t.includes(tagSelectId)))
                   .map((bookmarkItem) => (
-                    <BookmarkItem key={bookmarkItem.i} item={bookmarkItem} action={onClickBookmarkItem} />
+                    <BookmarkItem key={bookmarkItem.i} isShow={true} item={bookmarkItem} action={onClickBookmarkItem} />
                   ))}
               </div>
             </div>
