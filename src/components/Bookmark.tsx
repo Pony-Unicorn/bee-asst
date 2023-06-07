@@ -149,7 +149,7 @@ const Bookmark: FC = () => {
     }
 
     const url = new URL(bookmarkItems[id].u);
-    url.searchParams.set('utm_source', 'bee-asst'); // utm_source=bee-asst
+    url.searchParams.set('utm_source', 'bee-asst.testbug.cc'); // utm_source=bee-asst
     window.open(url, '_blank');
   };
 
